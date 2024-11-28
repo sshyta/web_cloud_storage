@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	_ "database/sql"
 	"github.com/astaxie/beego"
 )
 
