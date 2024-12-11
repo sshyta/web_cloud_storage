@@ -5,12 +5,35 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/lib/pq"
+	"log"
+	"os"
 	_ "web_cloud_storage/routers"
 )
 
 func main() {
-	beego.Run()
+	setLogPath("logs/app.log")
+	beego.BConfig.Listen.HTTPAddr = "localhost"
+	beego.BConfig.Listen.HTTPPort = 8181
 	orm.RegisterDriver("db", orm.DRMySQL)
 	// строка подключения: пользователь:пароль@tcp(хост:порт)/имя_базы_данных
-	orm.RegisterDataBase("default", "pq", "postgres:467912@tcp(127.0.0.1:5432)/web_cloud_storage")
+	orm.RegisterDataBase("default", "postgres", "user=postgres password=467912 host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable")
+
+	beego.Run()
+}
+
+func setLogPath(string) {
+	LogPath := "logs"
+	if _, err := os.Stat(LogPath); os.IsNotExist(err) {
+		err := os.Mkdir(LogPath, os.ModePerm)
+		if err != nil {
+			log.Fatal("Не удалось создать папку %v", err)
+		}
+	}
+	beego.BConfig.Log.FileLineNum = true
+	beego.BConfig.Log.Outputs = map[string]string{
+		"console": "",
+		"file":    LogPath + "/app.log",
+	}
+
+	log.Printf(LogPath)
 }
