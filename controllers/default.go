@@ -10,5 +10,9 @@ type MainController struct {
 }
 
 func (form *MainController) Get() {
-	form.TplName = "form_registration.tpl"
+	form.TplName = "form_login.tpl"
+}
+
+func (storage *MainController) Post() {
+	storage.TplName = "storage.tpl"
 }
