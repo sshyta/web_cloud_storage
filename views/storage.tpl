@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Files</title>
+    <title>storage</title>
     <link rel="stylesheet" href="/static/css/storage.css">
 </head>
 <body>
