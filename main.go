@@ -3,6 +3,7 @@ package main
 import (
 	_ "database/sql"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/lib/pq"
 	"log"
@@ -12,6 +13,8 @@ import (
 
 func main() {
 	beego.LoadAppConfig("ini", "conf/app.conf")
+	setLogPath("logs/app.log")
+
 	beego.SetStaticPath("/static", "static")
 
 	beego.BConfig.Listen.HTTPAddr = "localhost"
@@ -20,26 +23,23 @@ func main() {
 	// строка подключения: пользователь:пароль@tcp(хост:порт)/имя_базы_данных
 	orm.RegisterDataBase("default", "postgres", "user=postgres password=467912 host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable")
 
-	setLogPath("logs/app.log")
 	beego.Run()
 }
 
 func setLogPath(logFilePath string) {
-	logpath := logFilePath[:len(logFilePath)-len("/"+getFileName(logFilePath))]
-	if _, err := os.Stat(logpath); os.IsNotExist(err) {
-		err := os.Mkdir(logpath, os.ModePerm)
+	logDir := logFilePath[:len(logFilePath)-len("/"+getFileName(logFilePath))]
+	if _, err := os.Stat(logDir); os.IsNotExist(err) {
+		err := os.Mkdir(logDir, os.ModePerm)
 		if err != nil {
 			log.Fatal("Не удалось создать папку %v", err)
 		}
 	}
-	beego.BConfig.Log.FileLineNum = true
-	beego.BConfig.Log.AccessLogs = true
-	beego.BConfig.Log.Outputs = map[string]string{
-		"console": "",
-		"file":    logFilePath,
-	}
 
-	log.Printf(logFilePath)
+	logs.SetLogger(logs.AdapterFile, `{"filename":"`+logFilePath+`"}`)
+	logs.SetLogger(logs.AdapterConsole, `{"filename":"logs/app.log", "level":7, "daily":true, "maxdays":10}`)
+	logs.EnableFuncCallDepth(true)
+	logs.SetLogFuncCallDepth(3)
+	logs.SetLevel(logs.LevelDebug)
 }
 
 func getFileName(filePath string) string {
