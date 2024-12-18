@@ -21,7 +21,7 @@ func main() {
 	beego.BConfig.Listen.HTTPPort = 8181
 	orm.RegisterDriver("db", orm.DRMySQL)
 	// строка подключения: пользователь:пароль@tcp(хост:порт)/имя_базы_данных
-	orm.RegisterDataBase("default", "postgres", "user=postgres password=467912 host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable")
+	orm.RegisterDataBase("default", "postgres", "user=postgres password=467912 host=127.0.0.1 port=5433 dbname=web_cloud_storage sslmode=disable")
 
 	beego.Run()
 }
@@ -31,14 +31,14 @@ func setLogPath(logFilePath string) {
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
 		err := os.Mkdir(logDir, os.ModePerm)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Не удалось создать папку %v", err)
 		}
 	}
 
 	logs.SetLogger(logs.AdapterFile, `{"filename":"`+logFilePath+`"}`)
 	logs.SetLogger(logs.AdapterConsole, `{"filename":"logs/app.log", "level":7, "daily":true, "maxdays":10}`)
 	logs.EnableFuncCallDepth(true)
-	logs.SetLogFuncCallDepth(7)
+	logs.SetLogFuncCallDepth(3)
 	logs.SetLevel(logs.LevelDebug)
 }
 

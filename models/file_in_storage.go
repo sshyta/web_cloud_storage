@@ -3,6 +3,7 @@ package models
 import (
 	_ "database/sql"
 	"github.com/astaxie/beego/orm"
+	_ "github.com/lib/pq"
 	"time"
 )
 
