@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>panel admin</title>
+  <link rel="stylesheet" href="/static/css/user.css">
+</head>
+<body>
+<div class="container">
+  <!-- админ панель -->
+  <div class="admin-panel">
+    <h3>ADMIN</h3>
+    <div class="photo-placeholder">
+    </div>
+    <div class="info">
+      <p>NAME: <span>Иван Иванов</span></p>
+      <p>LOGIN: <input type="text" id="login" value="admin123"></p>
+      <p>PASSWORD: <span>******</span></p>
+      <p>EMAIL: <input type="email" id="email" value="admin@mail.com"></p>
+      <p>PHONE: <span>+7 (123) 456-78-90</span></p>
+      <p>DATE OF REGISTRATION: <span>2024-01-01</span></p>
+    </div>
+  </div>
+
+  <!-- центральная панель -->
+  <div class="new-user-panel">
+    <h3>ADD A NEW USER</h3>
+    <form>
+      <label for="new-login">LOGIN:</label>
+      <input type="text" id="new-login" placeholder="Enter login" required>
+
+      <label for="new-password">PASSWORD:</label>
+      <input type="password" id="new-password" placeholder="Enter password" required>
+
+      <label for="new-email">EMAIL:</label>
+      <input type="email" id="new-email" placeholder="Enter email" required>
+
+      <button type="submit">ENTER</button>
+    </form>
+  </div>
+
+  <!-- список пользователей -->
+  <div class="user-list-panel">
+    <h3>USER LIST</h3>
+    <div class="user-list">
+      <!-- блок для отображения пользователей -->
+    </div>
+  </div>
+</div>
+</body>
+</html>
