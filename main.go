@@ -31,14 +31,14 @@ func setLogPath(logFilePath string) {
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
 		err := os.Mkdir(logDir, os.ModePerm)
 		if err != nil {
-			log.Fatal("Не удалось создать папку %v", err)
+			log.Fatal(err)
 		}
 	}
 
 	logs.SetLogger(logs.AdapterFile, `{"filename":"`+logFilePath+`"}`)
 	logs.SetLogger(logs.AdapterConsole, `{"filename":"logs/app.log", "level":7, "daily":true, "maxdays":10}`)
 	logs.EnableFuncCallDepth(true)
-	logs.SetLogFuncCallDepth(3)
+	logs.SetLogFuncCallDepth(7)
 	logs.SetLevel(logs.LevelDebug)
 }
 

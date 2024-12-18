@@ -1,0 +1,106 @@
+:root {
+    --bg-color: #f9f9f9;
+    --card-bg: #ffffff;
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --text-color: #333;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.pricing-header {
+    margin-bottom: 40px;
+}
+
+.pricing-header h1 {
+    font-size: 36px;
+    color: var(--primary-color);
+}
+
+.pricing-header p {
+    font-size: 18px;
+    color: var(--secondary-color);
+}
+
+.pricing-cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+.card h2 {
+    font-size: 24px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.card .price {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.card ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.card ul li {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.card button {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.card button:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .pricing-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: 90%;
+    }
+}
