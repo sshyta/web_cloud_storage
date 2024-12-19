@@ -21,7 +21,7 @@ func main() {
 	beego.BConfig.Listen.HTTPPort = 8181
 	orm.RegisterDriver("db", orm.DRMySQL)
 	// строка подключения: пользователь:пароль@tcp(хост:порт)/имя_базы_данных
-	orm.RegisterDataBase("default", "postgres", "user=postgres password=467912 host=127.0.0.1 port=5433 dbname=web_cloud_storage sslmode=disable")
+	orm.RegisterDataBase("default", "postgres", "user=postgres password=467912 host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable")
 
 	beego.Run()
 }
