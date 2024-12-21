@@ -12,3 +12,5 @@ type StorageController struct {
 func (storage *StorageController) Get() {
 	storage.TplName = "storage.html"
 }
+
+/* добавить логику */

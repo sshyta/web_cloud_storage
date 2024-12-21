@@ -8,7 +8,12 @@ import (
 
 func init() {
 	beego.Router("/", &controllers.MainController{}, "get:Get;post:Post")
-	beego.Router("/storage", &controllers.StorageController{}, "get:Get;post:Post;delete:Delete")
+	beego.Router("/storage", &controllers.StorageController{})
 	beego.Router("/tariff", &controllers.TariffController{})
 	beego.Router("/user", &controllers.UserController{})
 }
+
+/*
+Добавить логику для storage, чтобы можно было скидывать файлы
+желательно использовать какой нибудь яндекс api
+*/
