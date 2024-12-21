@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	beego.LoadAppConfig("ini", "conf/app.conf")
+	beego.LoadAppConfig("init", "conf/app.conf")
 	setLogPath("logs/app.log")
 
 	beego.SetStaticPath("/static", "static")

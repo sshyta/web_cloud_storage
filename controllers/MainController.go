@@ -30,6 +30,7 @@ func (form *MainController) Post() {
 	form.TplName = "form_login.html"
 }
 
+// Подключение к базе
 func isValidUser(login, password string) bool {
 	connStr := "user=postgres password=467912 host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
@@ -40,13 +41,16 @@ func isValidUser(login, password string) bool {
 	defer db.Close()
 
 	var storedPassword string
-	// SQL-запрос ищет по полю login и возвращает userpass
+	log.Println("SQL Query: SELECT userpass FROM users WHERE login =", login)
 	err = db.QueryRow("SELECT userpass FROM users WHERE login = $1", login).Scan(&storedPassword)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		log.Println("No user found with login:", login)
+		return false
+	} else if err != nil {
 		log.Println("Error fetching user:", err)
 		return false
 	}
 
-	// Проверка пароля
+	log.Println("Password retrieved for user:", storedPassword)
 	return storedPassword == password
 }
