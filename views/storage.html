@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>storage</title>
+    <title>Storage</title>
     <link rel="stylesheet" href="/static/css/storage.css">
 </head>
 <body>
 <div class="header">
     <div class="logo">| web scape</div>
     <div class="user-info">
+        <button onclick="window.location.href='/user.html'" class="profile-btn">Profile</button>
         <img src="/static/img/avatar.png" alt="User Avatar">
         <span>admin</span>
     </div>
@@ -17,25 +18,25 @@
 
 <div class="content-wrapper">
     <div class="sidebar">
-        <button>upload File</button>
-        <button>all Files</button>
+        <form id="uploadForm" enctype="multipart/form-data" method="post" action="/storage/upload">
+            <input type="file" name="file" id="fileInput" hidden>
+            <button type="button" onclick="document.getElementById('fileInput').click()">Upload File</button>
+            <button type="submit">Submit Upload</button>
+        </form>
+        <button onclick="fetchFiles()">All Files</button>
     </div>
 
     <div class="main-content">
-        <input type="text" placeholder="Search files..." class="search-box">
+        <input type="text" placeholder="Search files..." class="search-box" id="searchBox" oninput="searchFiles()">
 
-        <div class="file-item">
-            <span class="file-name">document.pdf</span>
-            <div class="file-actions">
-                <button class="view-btn">view</button>
-                <button class="edit-btn">edit</button>
-                <button class="delete-btn">delete</button>
-            </div>
+        <div id="fileList">
+            <!-- File items will be dynamically loaded here -->
         </div>
-
     </div>
 </div>
 
-<div class="notification">File uploaded successfully!</div>
+<div class="notification" id="notification" style="display: none;">File uploaded successfully!</div>
+
+<script src="/js/dropfile.js"></script>
 </body>
 </html>
