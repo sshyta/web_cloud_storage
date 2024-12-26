@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Storage</title>
     <link rel="stylesheet" href="/static/css/storage.css">
+    <script src="/js/dropfile.js" defer></script>
 </head>
 <body>
 <div class="header">
@@ -29,8 +30,7 @@
     <div class="main-content">
         <input type="text" placeholder="Search files..." class="search-box" id="searchBox" oninput="searchFiles()">
 
-        <div id="fileList">
-            <!-- File items will be dynamically loaded here -->
+        <div id="fileList" class="file-list">
         </div>
     </div>
 </div>

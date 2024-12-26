@@ -1,21 +1,20 @@
 package models
 
 import (
-	_ "database/sql"
-	"github.com/astaxie/beego/orm"
-	_ "github.com/lib/pq"
 	"time"
+
+	"github.com/astaxie/beego/orm"
 )
 
-type file_in_storage struct {
-	file_in_storage_id int
-	users_id           int
-	file_size          int
-	upload_date        time.Time
-	file_type          string
-	file_version       int
+type FileInStorage struct {
+	FileID      int       `orm:"column(file_in_storage_id);pk;auto"`
+	UserID      int       `orm:"column(users_id)"`
+	FileSize    int       `orm:"column(file_size)"`
+	UploadDate  time.Time `orm:"column(upload_date);type(timestamp)"`
+	FileType    string    `orm:"column(file_type);size(30)"`
+	FileVersion int       `orm:"column(file_version)"`
 }
 
 func init() {
-	orm.RegisterModel(new(file_in_storage))
+	orm.RegisterModel(new(FileInStorage))
 }

@@ -147,6 +147,34 @@ body {
     transform: scale(1);
 }
 
+.file-list {
+    margin-top: 20px;
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.file-item button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.file-item button:hover {
+    background-color: #ff1a1a;
+}
+
+
 @keyframes fadeOut {
     0% { opacity: 1; }
     100% { opacity: 0; display: none; }
