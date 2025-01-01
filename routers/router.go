@@ -15,6 +15,3 @@ func init() {
 	beego.Router("/tariff", &controllers.TariffController{})
 	beego.Router("/user", &controllers.UserController{})
 }
-
-/* Добавить логику для storage, чтобы можно было скидывать файлы
-желательно использовать какой нибудь яндекс api */

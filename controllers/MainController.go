@@ -30,9 +30,9 @@ func (form *MainController) Post() {
 	form.TplName = "form_login.html"
 }
 
-// Подключение к базе
 func isValidUser(login, password string) bool {
-	connStr := "user=postgres password=467912 host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable"
+	connStr := "user=postgres password=467912 host=127.0.0.1 " +
+		"port=5432 dbname=web_cloud_storage sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Println("Database connection error:", err)

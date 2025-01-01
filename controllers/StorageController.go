@@ -15,7 +15,7 @@ type StorageController struct {
 const uploadDir = "./storage"
 
 func init() {
-	// Создание директории для хранения файлов, если её нет
+	// Директория для файла
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		panic(fmt.Sprintf("Failed to create storage directory: %v", err))
 	}
@@ -26,7 +26,7 @@ func (storage *StorageController) Get() {
 }
 
 func (storage *StorageController) Upload() {
-	file, header, err := storage.GetFile("file") // "file" — имя поля формы
+	file, header, err := storage.GetFile("file")
 	if err != nil {
 		storage.Ctx.Output.SetStatus(400)
 		storage.Data["json"] = map[string]string{"error": "Failed to retrieve file"}
@@ -38,7 +38,7 @@ func (storage *StorageController) Upload() {
 	// Путь для сохранения файла
 	filePath := "./storage/" + header.Filename
 
-	// Создаём файл на диске
+	// Сохранение файла на диске
 	out, err := os.Create(filePath)
 	if err != nil {
 		storage.Ctx.Output.SetStatus(500)
@@ -48,7 +48,7 @@ func (storage *StorageController) Upload() {
 	}
 	defer out.Close()
 
-	// Копируем содержимое загруженного файла
+	// Копирование файла на диск
 	_, err = io.Copy(out, file)
 	if err != nil {
 		storage.Ctx.Output.SetStatus(500)
@@ -57,7 +57,6 @@ func (storage *StorageController) Upload() {
 		return
 	}
 
-	// Успешный ответ
 	storage.Data["json"] = map[string]string{"message": "File uploaded successfully"}
 	storage.ServeJSON()
 }
