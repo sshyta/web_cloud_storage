@@ -7,11 +7,12 @@ import (
 )
 
 type access_to_files struct {
-	acces_to_file_id   int
-	file_in_storage_id int
-	access_type        string
+	AccesToFileID   int    `orm:"column(acces_to_file_id);pk;auto"` // Указание первичного ключа
+	FileInStorageID int    `orm:"column(file_in_storage_id);null"`  // Внешний ключ, если необходимо
+	AccessType      string `orm:"column(access_type);size(50);null"`
 }
 
 func init() {
+	// Регистрация модели без префикса
 	orm.RegisterModel(new(access_to_files))
 }

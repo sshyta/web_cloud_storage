@@ -8,7 +8,7 @@ import (
 )
 
 type Users struct {
-	user_id              int
+	UserID               int `orm:"column(user_id);pk;auto"`
 	foto                 []byte
 	username             string
 	userpass             string

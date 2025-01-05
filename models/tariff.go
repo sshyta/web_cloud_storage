@@ -7,7 +7,7 @@ import (
 )
 
 type tariff struct {
-	tariff_id                int
+	TariffID                 int `orm:"column(tariff_id);pk;auto"`
 	tariff_name              string
 	maximum_storage_capacity int
 	price                    int

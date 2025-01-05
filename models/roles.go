@@ -7,7 +7,7 @@ import (
 )
 
 type roles struct {
-	roles_id     int
+	RolesID      int `orm:"column(roles_id);pk;auto"`
 	type_of_role string
 }
 

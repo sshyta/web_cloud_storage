@@ -8,7 +8,7 @@ import (
 )
 
 type action_log struct {
-	action_log_id      int
+	ActionlogID        int `orm:"column(action_log_id);pk;auto"`
 	action_info        string
 	file_in_storage_id int
 	date_action        time.Time

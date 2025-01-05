@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"log"
 	"net/http"
+	_ "web_cloud_storage/models"
 )
 
 type MainController struct {

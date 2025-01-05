@@ -8,7 +8,7 @@ import (
 )
 
 type payments struct {
-	payments_id        int
+	PaymentsID         int `orm:"column(payments_id);pk;auto"`
 	amount             float64
 	date_of_payment    time.Time
 	status             bool

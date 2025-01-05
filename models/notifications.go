@@ -8,7 +8,7 @@ import (
 )
 
 type notifications struct {
-	notifications_id     int
+	NotificationsID      int `orm:"column(notifications_id);pk;auto"`
 	notifications_text   string
 	date_of_notification time.Time
 	status               bool
