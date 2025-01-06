@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 	"web_cloud_storage/models"
+	"web_cloud_storage/utils"
+	_ "web_cloud_storage/utils"
 )
 
 type UserController struct {
@@ -18,21 +20,18 @@ func (c *UserController) Get() {
 
 func (c *UserController) AddUser() {
 	if c.Ctx.Input.Method() == "POST" {
-		// Получение данных из формы
 		username := c.GetString("username")
 		password := c.GetString("password")
 		login := c.GetString("login")
 		email := c.GetString("email")
 		rolesIDStr := c.GetString("roles_id")
 
-		// Проверка обязательных полей
 		if username == "" || password == "" || login == "" || email == "" || rolesIDStr == "" {
 			c.Data["json"] = map[string]string{"error": "All fields are required"}
 			c.ServeJSON()
 			return
 		}
 
-		// Преобразование roles_id в число
 		rolesID, err := strconv.Atoi(rolesIDStr)
 		if err != nil || rolesID < 1 {
 			c.Data["json"] = map[string]string{"error": "Invalid role ID"}
@@ -40,17 +39,18 @@ func (c *UserController) AddUser() {
 			return
 		}
 
-		// Создание нового пользователя
+		// Хеширование пароля
+		hashedPassword := utils.HashPassword(password)
+
 		user := models.Users{
 			Username:           username,
-			Userpass:           password,
+			Userpass:           hashedPassword,
 			Login:              login,
 			WorkingEmail:       email,
 			RolesID:            rolesID,
 			DateOfRegistration: time.Now(),
 		}
 
-		// Сохранение пользователя в базу данных
 		o := orm.NewOrm()
 		_, err = o.Insert(&user)
 		if err != nil {

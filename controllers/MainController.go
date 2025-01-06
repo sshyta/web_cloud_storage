@@ -5,7 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"log"
 	"net/http"
-	_ "web_cloud_storage/models"
+	"web_cloud_storage/utils" // Подключение вашего hash.go
 )
 
 type MainController struct {
@@ -52,6 +52,10 @@ func isValidUser(login, password string) bool {
 		return false
 	}
 
-	log.Println("Password retrieved for user:", storedPassword)
-	return storedPassword == password
+	// Хэшируем введённый пароль и сравниваем с хранимым
+	hashedPassword := utils.HashPassword(password)
+	log.Println("Hashed input password:", hashedPassword)
+	log.Println("Stored password in DB:", storedPassword)
+
+	return hashedPassword == storedPassword
 }

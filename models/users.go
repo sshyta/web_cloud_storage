@@ -8,7 +8,7 @@ import (
 type Users struct {
 	UsersID            int       `orm:"column(users_id);pk;auto"`
 	Username           string    `orm:"column(username);size(50);unique"`
-	Userpass           string    `orm:"column(userpass);size(50)"`
+	Userpass           string    `orm:"column(userpass);size(64)"` // SHA-256 хэш имеет длину 64 символа
 	Login              string    `orm:"column(login);size(50)"`
 	WorkingEmail       string    `orm:"column(working_email);size(250);null"`
 	RolesID            int       `orm:"column(roles_id)"`
