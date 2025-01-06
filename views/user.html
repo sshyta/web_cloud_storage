@@ -26,18 +26,26 @@
   <!-- центральная панель -->
   <div class="new-user-panel">
     <h3>NEW USER</h3>
-    <form>
-      <label for="new-login">login:</label>
-      <input type="text" id="new-login" placeholder="Enter login" required>
+    <form action="/user/add" method="POST">
+      <label for="new-username">Username:</label>
+      <input type="text" id="new-username" name="username" placeholder="Enter username" required>
 
-      <label for="new-password">pass:</label>
-      <input type="password" id="new-password" placeholder="Enter password" required>
+      <label for="new-login">Login:</label>
+      <input type="text" id="new-login" name="login" placeholder="Enter login" required>
 
-      <label for="new-email">email:</label>
-      <input type="email" id="new-email" placeholder="Enter email" required>
+      <label for="new-password">Password:</label>
+      <input type="password" id="new-password" name="password" placeholder="Enter password" required>
 
-      <button type="submit">enter</button>
+      <label for="new-email">Email:</label>
+      <input type="email" id="new-email" name="email" placeholder="Enter email" required>
+
+      <label for="new-roles-id">Role ID:</label>
+      <input type="number" id="new-roles-id" name="roles_id" value="2" required> <!-- Установим значение по умолчанию, если это для обычных пользователей -->
+
+      <button type="submit">Submit</button>
     </form>
+
+
   </div>
 
   <!-- список пользователей -->

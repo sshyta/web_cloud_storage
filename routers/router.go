@@ -14,4 +14,5 @@ func init() {
 	beego.Router("/storage/delete", &controllers.StorageController{}, "post:Delete")
 	beego.Router("/tariff", &controllers.TariffController{})
 	beego.Router("/user", &controllers.UserController{})
+	beego.Router("/user/add", &controllers.UserController{}, "post:AddUser")
 }

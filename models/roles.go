@@ -6,11 +6,15 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type roles struct {
-	RolesID      int `orm:"column(roles_id);pk;auto"`
-	type_of_role string
+type Roles struct {
+	RolesID    int    `orm:"column(roles_id); pk; auto"`
+	TypeOfRole string `orm:"column(type_of_role); size(128);"`
+}
+
+func (r *Roles) TableName() string {
+	return "roles"
 }
 
 func init() {
-	orm.RegisterModel(new(roles))
+	orm.RegisterModel(new(Roles))
 }
