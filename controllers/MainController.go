@@ -5,7 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"log"
 	"net/http"
-	"web_cloud_storage/utils" // Подключение вашего hash.go
+	"web_cloud_storage/utils"
 )
 
 type MainController struct {
