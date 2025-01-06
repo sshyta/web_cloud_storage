@@ -3,17 +3,17 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"strconv"
 	"time"
 	"web_cloud_storage/models"
-	"web_cloud_storage/utils"
 )
 
 type UserController struct {
 	beego.Controller
 }
 
-func (user *UserController) Get() {
-	user.TplName = "user.html"
+func (c *UserController) Get() {
+	c.TplName = "user.html"
 }
 
 func (c *UserController) AddUser() {
@@ -23,31 +23,36 @@ func (c *UserController) AddUser() {
 		password := c.GetString("password")
 		login := c.GetString("login")
 		email := c.GetString("email")
-		rolesID, _ := c.GetInt("roles_id") // Получаем роль как целое число
+		rolesIDStr := c.GetString("roles_id")
 
 		// Проверка обязательных полей
-		if username == "" || password == "" || login == "" || email == "" || rolesID == 0 {
+		if username == "" || password == "" || login == "" || email == "" || rolesIDStr == "" {
 			c.Data["json"] = map[string]string{"error": "All fields are required"}
 			c.ServeJSON()
 			return
 		}
 
-		// Шифрование пароля
-		hashedPassword := utils.HashPassword(password)
+		// Преобразование roles_id в число
+		rolesID, err := strconv.Atoi(rolesIDStr)
+		if err != nil || rolesID < 1 {
+			c.Data["json"] = map[string]string{"error": "Invalid role ID"}
+			c.ServeJSON()
+			return
+		}
 
 		// Создание нового пользователя
 		user := models.Users{
 			Username:           username,
-			Password:           hashedPassword,
+			Userpass:           password,
 			Login:              login,
-			Email:              email,
-			RolesID:            rolesID, // Присваиваем значение роли
+			WorkingEmail:       email,
+			RolesID:            rolesID,
 			DateOfRegistration: time.Now(),
 		}
 
 		// Сохранение пользователя в базу данных
 		o := orm.NewOrm()
-		_, err := o.Insert(&user)
+		_, err = o.Insert(&user)
 		if err != nil {
 			c.Data["json"] = map[string]string{"error": "Failed to save user: " + err.Error()}
 			c.ServeJSON()
@@ -55,6 +60,9 @@ func (c *UserController) AddUser() {
 		}
 
 		c.Data["json"] = map[string]string{"success": "User added successfully"}
+		c.ServeJSON()
+	} else {
+		c.Data["json"] = map[string]string{"error": "Invalid request method"}
 		c.ServeJSON()
 	}
 }

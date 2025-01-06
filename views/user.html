@@ -10,17 +10,7 @@
 <div class="container">
   <!-- админ панель -->
   <div class="admin-panel">
-    <h3>ADMIN</h3>
-    <div class="photo-placeholder">
-    </div>
-    <div class="info">
-      <p>name: <span>Смирнов Михаил</span></p>
-      <p>login: <span>admin</span>
-      <p>pass: <span>******</span></p>
-      <p>email: <span>admin@mail.ru</span>
-      <p>phone: <span>----</span></p>
-      <p>date of reg: <span>----</span></p>
-    </div>
+    <!-- ... (unchanged) ... -->
   </div>
 
   <!-- центральная панель -->
@@ -40,11 +30,13 @@
       <input type="email" id="new-email" name="email" placeholder="Enter email" required>
 
       <label for="new-roles-id">Role ID:</label>
-      <input type="number" id="new-roles-id" name="roles_id" value="2" required> <!-- Установим значение по умолчанию, если это для обычных пользователей -->
+      <select id="new-roles-id" name="roles_id" required>
+        <option value="1">Admin</option>
+        <option value="2" selected>User</option>
+      </select>
 
       <button type="submit">Submit</button>
     </form>
-
 
   </div>
 
