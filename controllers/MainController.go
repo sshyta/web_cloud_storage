@@ -53,9 +53,17 @@ func (form *MainController) GetStorage() {
 }
 
 // Выход из системы
-func (form *MainController) Logout() {
-	form.DestroySession()                // Удаление сессии
-	form.Redirect("/", http.StatusFound) // Перенаправление на страницу входа
+
+func (c *MainController) Logout() {
+	// Удаляем сессию
+	c.DestroySession()
+
+	// Отправляем успешный ответ
+	c.Data["json"] = map[string]interface{}{
+		"status":  "success",
+		"message": "Logged out successfully",
+	}
+	c.ServeJSON()
 }
 
 // Функция проверки логина и пароля

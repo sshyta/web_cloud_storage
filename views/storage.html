@@ -8,10 +8,32 @@
     <script src="/js/dropfile.js" defer></script>
 </head>
 <body>
+<script>
+    async function handleLogout() {
+        try {
+            const response = await fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include' // Важно для работы с сессиями
+            });
+
+            if (response.ok) {
+                window.location.href = '/'; // Перенаправление на страницу входа
+            } else {
+                console.error('Logout failed');
+            }
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
+    }
+</script>
 <div class="header">
     <div class="logo">| web scape</div>
     <div class="user-info">
         <button onclick="window.location.href='/user.html'" class="profile-btn">Profile</button>
+        <button onclick="handleLogout()" class="logout-btn">Logout</button>
         <img src="/static/img/avatar.png" alt="User Avatar">
         <span>admin</span>
     </div>
