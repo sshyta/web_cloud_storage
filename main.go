@@ -10,14 +10,18 @@ import (
 
 func init() {
 	orm.RegisterDataBase("default", "postgres", "user=postgres password=467912 "+
-		"host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable") /* Подключение к бд*/
+		"host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable")
 	orm.RegisterDriver("db", orm.DRMySQL)
-	//orm.RegisterModel(new(models.Users), new(models.Roles))
 }
 
 func main() {
-	beego.LoadAppConfig("init", "conf/app.conf")
-	setLogPath("logs/app.log")
+	// Загрузка конфигурации
+	beego.LoadAppConfig("ini", "conf/app.conf")
+
+	// Настройка сессий
+	beego.BConfig.WebConfig.Session.SessionOn = true
+
+	// Остальные настройки
 	beego.SetStaticPath("/static", "static")
 	beego.BConfig.Listen.HTTPAddr = "localhost"
 	beego.BConfig.Listen.HTTPPort = 8181

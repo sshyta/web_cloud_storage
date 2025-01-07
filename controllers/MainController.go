@@ -12,28 +12,55 @@ type MainController struct {
 	beego.Controller
 }
 
+// Отображение страницы входа
 func (form *MainController) Get() {
-	form.TplName = "form_login.html"
+	form.TplName = "form_login.html" // Отображаем форму входа
 }
 
+// Обработка логина
 func (form *MainController) Post() {
 	login := form.GetString("login")
 	password := form.GetString("password")
 
-	// Проверка логина и пароля
+	if login == "" || password == "" {
+		form.SetSession("username", login) // После успешного логина
+		form.Data["Error"] = "Login and password cannot be empty"
+		form.TplName = "form_login.html"
+		return
+	}
+
 	if isValidUser(login, password) {
+		// Сохранение логина в сессии
+		form.SetSession("username", login)
 		form.Redirect("/storage", http.StatusFound)
 		return
 	}
 
-	// Сообщение об ошибке
 	form.Data["Error"] = "Invalid login or password"
 	form.TplName = "form_login.html"
 }
 
+// Отображение страницы хранилища
+func (form *MainController) GetStorage() {
+	username := form.GetSession("username")
+	if username == nil {
+		form.Redirect("/", http.StatusFound) // Если нет сессии, перенаправляем на логин
+		return
+	}
+
+	form.Data["Username"] = username
+	form.TplName = "storage.html"
+}
+
+// Выход из системы
+func (form *MainController) Logout() {
+	form.DestroySession()                // Удаление сессии
+	form.Redirect("/", http.StatusFound) // Перенаправление на страницу входа
+}
+
+// Функция проверки логина и пароля
 func isValidUser(login, password string) bool {
-	connStr := "user=postgres password=467912 host=127.0.0.1 " +
-		"port=5432 dbname=web_cloud_storage sslmode=disable"
+	connStr := "user=postgres password=467912 host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Println("Database connection error:", err)
@@ -42,7 +69,6 @@ func isValidUser(login, password string) bool {
 	defer db.Close()
 
 	var storedPassword string
-	log.Println("SQL Query: SELECT userpass FROM users WHERE login =", login)
 	err = db.QueryRow("SELECT userpass FROM users WHERE login = $1", login).Scan(&storedPassword)
 	if err == sql.ErrNoRows {
 		log.Println("No user found with login:", login)
@@ -52,10 +78,7 @@ func isValidUser(login, password string) bool {
 		return false
 	}
 
-	// Хэшируем введённый пароль и сравниваем с хранимым
+	// Проверка хэша пароля
 	hashedPassword := utils.HashPassword(password)
-	log.Println("Hashed input password:", hashedPassword)
-	log.Println("Stored password in DB:", storedPassword)
-
 	return hashedPassword == storedPassword
 }
