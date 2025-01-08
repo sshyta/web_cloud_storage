@@ -20,7 +20,6 @@ func init() {
 	beego.Router("/user/add", &controllers.UserController{}, "post:AddUser")
 	beego.Router("/user/list", &controllers.UserController{}, "get:GetUsers") // Роут для отображения пользователей
 
-	// Применяем middleware для маршрутов
 	beego.InsertFilter("/storage/*", beego.BeforeRouter, filters.AuthMiddleware)
 
 }

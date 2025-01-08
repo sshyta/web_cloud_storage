@@ -156,7 +156,7 @@ body {
     font-size: 14px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-left: 10px; /* Добавляем отступ слева */
+    margin-left: 10px;
 }
 
 .logout-btn:hover {
