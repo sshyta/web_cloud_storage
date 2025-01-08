@@ -21,8 +21,15 @@ func init() {
 	}
 }
 
-func (storage *StorageController) Get() {
-	storage.TplName = "storage.html"
+func (c *StorageController) Get() {
+	// Получаем имя пользователя из сессии
+	username := c.GetSession("username")
+	if username == nil {
+		username = "Guest" // Если пользователь не авторизован
+	}
+	// Передаем имя пользователя в шаблон
+	c.Data["Username"] = username
+	c.TplName = "storage.html"
 }
 
 func (storage *StorageController) Upload() {
