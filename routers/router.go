@@ -19,7 +19,7 @@ func init() {
 	beego.Router("/user", &controllers.UserController{})
 	beego.Router("/user/add", &controllers.UserController{}, "post:AddUser")
 
-	// Применяем middleware для маршрутов /storage
+	// Применяем middleware для маршрутов
 	beego.InsertFilter("/storage/*", beego.BeforeRouter, filters.AuthMiddleware)
 
 }

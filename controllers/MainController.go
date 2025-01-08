@@ -14,7 +14,7 @@ type MainController struct {
 
 // Отображение страницы входа
 func (form *MainController) Get() {
-	form.TplName = "form_login.html" // Отображаем форму входа
+	form.TplName = "form_login.html"
 }
 
 // Обработка логина
@@ -44,7 +44,7 @@ func (form *MainController) Post() {
 func (form *MainController) GetStorage() {
 	username := form.GetSession("username")
 	if username == nil {
-		form.Redirect("/", http.StatusFound) // Если нет сессии, перенаправляем на логин
+		form.Redirect("/", http.StatusFound)
 		return
 	}
 
@@ -53,7 +53,6 @@ func (form *MainController) GetStorage() {
 }
 
 // Выход из системы
-
 func (c *MainController) Logout() {
 	// Удаляем сессию
 	c.DestroySession()
