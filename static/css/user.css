@@ -23,6 +23,36 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Контейнер для списка пользователей */
+.user-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px; /* Расстояние между карточками */
+    justify-content: center;
+    padding: 16px;
+}
+
+/* Карточка пользователя */
+.user-item {
+    background-color: #fff; /* Цвет фона карточки */
+    border: 1px solid #ddd; /* Граница карточки */
+    border-radius: 8px; /* Скругление углов */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень */
+    padding: 16px; /* Внутренний отступ */
+    width: 300px; /* Фиксированная ширина */
+    text-align: left; /* Выравнивание текста */
+}
+
+/* Заголовки в карточке */
+.user-item p {
+    margin: 8px 0; /* Отступы между строками */
+}
+
+.user-item p strong {
+    color: #333; /* Цвет для ключевых слов */
+    font-weight: bold;
+}
+
 .admin-panel {
     width: 250px;
 }

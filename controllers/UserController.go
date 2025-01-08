@@ -15,7 +15,35 @@ type UserController struct {
 }
 
 func (c *UserController) Get() {
+	o := orm.NewOrm()
+
+	// Получение списка пользователей
+	var users []models.Users
+	_, err := o.QueryTable("users").All(&users)
+	if err != nil {
+		beego.Error("Error fetching users:", err)
+		// Передаем пустой список, если произошла ошибка
+		c.Data["Users"] = []models.Users{}
+	} else {
+		c.Data["Users"] = users
+	}
+
+	// Передача данных в шаблон
 	c.TplName = "user.html"
+}
+
+func (c *UserController) GetUsers() {
+	o := orm.NewOrm()
+	var users []models.Users
+	_, err := o.QueryTable("users").All(&users)
+	if err != nil {
+		beego.Error("Error fetching users:", err)
+		c.Ctx.Output.SetStatus(500)
+		c.Data["json"] = map[string]string{"error": "Failed to retrieve users"}
+	} else {
+		c.Data["json"] = users // Отправляем данные в JSON-формате
+	}
+	c.ServeJSON()
 }
 
 func (c *UserController) AddUser() {
