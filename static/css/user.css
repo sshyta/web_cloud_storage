@@ -1,12 +1,12 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #222222; /* Фон страницы */
+    background-color: #222222;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    color: #ccc; /* Цвет текста */
+    color: #ccc;
 }
 
 .container {
@@ -18,7 +18,7 @@ body {
 .admin-panel,
 .new-user-panel,
 .user-list-panel {
-    background-color: #333; /* Темный фон для панелей */
+    background-color: #333;
     padding: 20px;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -33,7 +33,7 @@ body {
 }
 
 .user-item {
-    background-color: #444; /* Темный фон для элементов пользователя */
+    background-color: #444;
     border: 1px solid #555;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -44,11 +44,11 @@ body {
 
 .user-item p {
     margin: 8px 0;
-    color: #ccc; /* Светлый цвет текста в элементах */
+    color: #ccc;
 }
 
 .user-item p strong {
-    color: #fff; /* Белый цвет для жирных заголовков */
+    color: #fff;
 }
 
 .admin-panel {
@@ -58,7 +58,7 @@ body {
 .photo-placeholder {
     width: 100px;
     height: 100px;
-    background-color: #555; /* Темный фон для изображения */
+    background-color: #555;
     margin: 0 auto 10px;
     border-radius: 10px;
 }
@@ -66,17 +66,17 @@ body {
 .info p {
     margin: 8px 0;
     font-size: 14px;
-    color: #ccc; /* Светлый цвет текста */
+    color: #ccc;
 }
 
 input {
-    border: 1px solid #666; /* Темная граница для инпутов */
+    border: 1px solid #666;
     padding: 5px;
     border-radius: 5px;
     width: 100%;
     margin: 5px 0;
-    background-color: #333; /* Темный фон для инпутов */
-    color: #ccc; /* Светлый цвет текста в инпутах */
+    background-color: #333;
+    color: #ccc;
 }
 
 input:focus {
@@ -95,21 +95,21 @@ input:focus {
 
 label {
     font-size: 12px;
-    color: #ccc; /* Светлый цвет для меток */
+    color: #ccc;
 }
 
 button {
     padding: 10px;
     border: none;
-    background-color: #000; /* Темная кнопка */
-    color: #fff; /* Белый текст на кнопке */
+    background-color: #000;
+    color: #fff;
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
 }
 
 button:hover {
-    background-color: #444; /* Более светлый фон при наведении */
+    background-color: #444;
 }
 
 .user-list-panel {
