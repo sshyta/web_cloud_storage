@@ -8,7 +8,7 @@ camera.position.z = 10;
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setClearColor(0x222222);
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement); // Добавляем канвас на страницу
+document.body.appendChild(renderer.domElement);
 
 const aLight = new THREE.AmbientLight(0x404040, 2);
 scene.add(aLight);
