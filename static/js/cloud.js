@@ -26,7 +26,7 @@ let obj = null;
 loader.load('/static/scens/scene.gltf', function (gltf) {
     obj = gltf;
     obj.scene.scale.set(1.3, 1.3, 1.3);
-    obj.scene.position.set(0, 2, 0);
+    obj.scene.position.set(0.02, 2, 0);
     scene.add(obj.scene);
 }, function (xhr) {
     console.log((xhr.loaded / xhr.total * 100) + '% loaded');
