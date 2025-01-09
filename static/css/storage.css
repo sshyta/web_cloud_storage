@@ -1,6 +1,6 @@
 :root {
-    --bg-color: #f9f9f9;
-    --text-color: #333;
+    --bg-color: #222222; /* Фон для страницы */
+    --text-color: #ccc;   /* Цвет текста */
     --button-bg: #000;
     --button-text: #fff;
 }
@@ -18,7 +18,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background-color: #fff;
+    background-color: #333; /* Темный фон для шапки */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -52,7 +52,7 @@ body {
 
 .sidebar {
     width: 20%;
-    background-color: #f3f3f3;
+    background-color: #333; /* Темный фон для бокового меню */
     padding: 20px;
     border-radius: 10px;
 }
@@ -78,7 +78,9 @@ body {
     width: 100%;
     padding: 10px;
     font-size: 14px;
-    border: 1px solid #ddd;
+    color: #ffffff;
+    border: 1px solid #555; /* Темная граница */
+    background-color: #333; /* Темный фон для файлов */
     border-radius: 20px;
     margin-bottom: 20px;
 }
@@ -88,7 +90,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: #fff;
+    background-color: #333; /* Темный фон для файлов */
     border-radius: 10px;
     margin-bottom: 10px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
@@ -168,13 +170,6 @@ body {
     transform: scale(1);
 }
 
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .file-list {
     margin-top: 20px;
 }
@@ -184,7 +179,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #444; /* Темная граница */
     margin-bottom: 10px;
     border-radius: 5px;
 }
@@ -201,7 +196,6 @@ body {
 .file-item button:hover {
     background-color: #ff1a1a;
 }
-
 
 @keyframes fadeOut {
     0% { opacity: 1; }
