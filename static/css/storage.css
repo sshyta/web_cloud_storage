@@ -79,8 +79,8 @@ body {
     padding: 10px;
     font-size: 14px;
     color: #ffffff;
-    border: 1px solid #555; /* Темная граница */
-    background-color: #333; /* Темный фон для файлов */
+    border: 1px solid #555;
+    background-color: #333;
     border-radius: 20px;
     margin-bottom: 20px;
 }
@@ -90,7 +90,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: #333; /* Темный фон для файлов */
+    background-color: #333;
     border-radius: 10px;
     margin-bottom: 10px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
@@ -179,7 +179,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    border: 1px solid #444; /* Темная граница */
+    border: 1px solid #444;
     margin-bottom: 10px;
     border-radius: 5px;
 }
