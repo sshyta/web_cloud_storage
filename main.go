@@ -17,7 +17,6 @@ func init() {
 func main() {
 	// Загрузка конфигурации
 	beego.LoadAppConfig("ini", "conf/app.conf")
-
 	// Настройка сессий
 	beego.BConfig.WebConfig.Session.SessionOn = true
 
@@ -26,5 +25,6 @@ func main() {
 	beego.BConfig.Listen.HTTPAddr = "localhost"
 	beego.BConfig.Listen.HTTPPort = 8181
 
+	setLogPath("logs/app.log") // Вызов функции логов
 	beego.Run()
 }
