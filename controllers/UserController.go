@@ -17,18 +17,29 @@ type UserController struct {
 func (c *UserController) Get() {
 	o := orm.NewOrm()
 
-	// Получение списка пользователей
+	// Get current user from session
+	username := c.GetSession("username")
+	if username != nil {
+		var currentUser models.Users
+		err := o.QueryTable("users").Filter("login", username).One(&currentUser)
+		if err == nil {
+			c.Data["Username"] = currentUser.Username
+			c.Data["Login"] = currentUser.Login
+			c.Data["WorkingEmail"] = currentUser.WorkingEmail
+			c.Data["RolesID"] = currentUser.RolesID
+		}
+	}
+
+	// Get all users for the list
 	var users []models.Users
 	_, err := o.QueryTable("users").All(&users)
 	if err != nil {
 		beego.Error("Error fetching users:", err)
-		// Передаем пустой список, если произошла ошибка
 		c.Data["Users"] = []models.Users{}
 	} else {
 		c.Data["Users"] = users
 	}
 
-	// Передача данных в шаблон
 	c.TplName = "user.html"
 }
 
