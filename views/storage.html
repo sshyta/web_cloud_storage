@@ -60,55 +60,117 @@
 <div class="notification" id="notification" style="display: none;">File uploaded successfully!</div>
 
 <script>
-    async function fetchFiles() {
-        const response = await fetch('/files');
-        const files = await response.json();
-        const fileList = document.getElementById('fileList');
-        fileList.innerHTML = '';
-
-        files.forEach(file => {
-            const fileItem = document.createElement('div');
-            fileItem.classList.add('file-item');
-            fileItem.innerHTML = `
-                <span class="file-name">${file.name}</span>
-                <div class="file-actions">
-                    <button class="view-btn" onclick="viewFile('${file.name}')">View</button>
-                    <button class="edit-btn" onclick="editFile('${file.name}')">Edit</button>
-                    <button class="delete-btn" onclick="deleteFile('${file.name}')">Delete</button>
-                </div>
-            `;
-            fileList.appendChild(fileItem);
-        });
-    }
-
-    function searchFiles() {
-        const query = document.getElementById('searchBox').value.toLowerCase();
-        const fileItems = document.querySelectorAll('.file-item');
-        fileItems.forEach(item => {
-            const fileName = item.querySelector('.file-name').textContent.toLowerCase();
-            item.style.display = fileName.includes(query) ? '' : 'none';
-        });
-    }
-
     async function viewFile(fileName) {
-        window.location.href = `/view?file=${fileName}`;
+        try {
+            const response = await fetch(`/storage/view?file=${encodeURIComponent(fileName)}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('Файл не найден');
+                } else {
+                    throw new Error('Ошибка при открытии файла');
+                }
+            }
+
+            // Получаем blob из ответа
+            const blob = await response.blob();
+
+            // Создаем URL для blob
+            const url = window.URL.createObjectURL(blob);
+
+            // Открываем URL в новом окне
+            window.open(url, '_blank');
+
+            // Освобождаем URL после открытия
+            setTimeout(() => window.URL.revokeObjectURL(url), 100);
+        } catch (error) {
+            alert(error.message);
+        }
     }
 
     async function editFile(fileName) {
-        window.location.href = `/edit?file=${fileName}`;
+        try {
+            const response = await fetch(`/storage/view?file=${encodeURIComponent(fileName)}`);
+            if (!response.ok) throw new Error('Ошибка получения содержимого файла');
+
+            const content = await response.text();
+            const newContent = prompt('Редактировать содержимое файла:', content);
+
+            if (newContent !== null) {
+                const saveResponse = await fetch('/storage/edit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `file=${encodeURIComponent(fileName)}&content=${encodeURIComponent(newContent)}`
+                });
+
+                if (!saveResponse.ok) throw new Error('Ошибка сохранения файла');
+
+                alert('Файл успешно сохранен');
+                await fetchFiles(); // Обновляем список файлов
+            }
+        } catch (error) {
+            alert('Ошибка при редактировании файла: ' + error.message);
+        }
     }
 
     async function deleteFile(fileName) {
-        if (confirm(`Are you sure you want to delete ${fileName}?`)) {
-            const response = await fetch(`/delete?file=${fileName}`, { method: 'DELETE' });
-            if (response.ok) {
-                alert('File deleted successfully');
-                fetchFiles();
-            } else {
-                alert('Failed to delete file');
+        if (confirm(`Вы уверены, что хотите удалить файл ${fileName}?`)) {
+            try {
+                const response = await fetch(`/storage/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `file=${encodeURIComponent(fileName)}`
+                });
+
+                if (!response.ok) throw new Error('Ошибка удаления файла');
+
+                alert('Файл успешно удален');
+                await fetchFiles(); // Обновляем список файлов
+            } catch (error) {
+                alert('Ошибка при удалении файла: ' + error.message);
             }
         }
     }
+
+    // Обновленная функция fetchFiles с обработкой ошибок на русском
+    async function fetchFiles() {
+        try {
+            const response = await fetch('/storage/files');
+            if (!response.ok) throw new Error('Ошибка получения списка файлов');
+
+            const files = await response.json();
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            if (Array.isArray(files) && files.length > 0) {
+                files.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.classList.add('file-item');
+                    fileItem.innerHTML = `
+                        <span class="file-name">${file}</span>
+                        <div class="file-actions">
+                            <button class="view-btn" onclick="viewFile('${file}')">Просмотр</button>
+                            <button class="edit-btn" onclick="editFile('${file}')">Редактировать</button>
+                            <button class="delete-btn" onclick="deleteFile('${file}')">Удалить</button>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+            } else {
+                fileList.innerHTML = '<div class="no-files">Файлы не найдены</div>';
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            document.getElementById('fileList').innerHTML =
+                '<div class="error">Ошибка загрузки файлов. Пожалуйста, попробуйте снова.</div>';
+        }
+    }
+
+    // Вызываем fetchFiles при загрузке страницы
+    document.addEventListener('DOMContentLoaded', fetchFiles);
 </script>
 
 </body>
