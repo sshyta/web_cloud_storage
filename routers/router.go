@@ -16,6 +16,7 @@ func init() {
 	beego.Router("/storage/delete", &controllers.StorageController{}, "post:Delete")
 	beego.Router("/storage/view", &controllers.StorageController{}, "get:View")
 	beego.Router("/storage/edit", &controllers.StorageController{}, "post:Edit")
+	beego.Router("/storage/download", &controllers.StorageController{}, "get:Download")
 
 	beego.Router("/tariff", &controllers.TariffController{})
 	beego.Router("/user", &controllers.UserController{})

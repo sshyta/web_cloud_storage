@@ -186,9 +186,9 @@ func (storage *StorageController) Edit() {
 	fileName := storage.GetString("file")
 	content := storage.GetString("content")
 
-	if fileName == "" {
+	if fileName == "" || content == "" {
 		storage.Ctx.Output.SetStatus(400)
-		storage.Data["json"] = map[string]string{"error": "Имя файла не указано"}
+		storage.Data["json"] = map[string]string{"error": "Имя файла или содержимое не указано"}
 		storage.ServeJSON()
 		return
 	}
@@ -204,4 +204,57 @@ func (storage *StorageController) Edit() {
 
 	storage.Data["json"] = map[string]string{"message": "Файл успешно сохранен"}
 	storage.ServeJSON()
+}
+
+func (storage *StorageController) Download() {
+	username := storage.GetSession("username")
+	if username == nil {
+		storage.Ctx.Output.SetStatus(401)
+		storage.Data["json"] = map[string]string{"error": "Не авторизован"}
+		storage.ServeJSON()
+		return
+	}
+
+	fileName := storage.GetString("file")
+	if fileName == "" {
+		storage.Ctx.Output.SetStatus(400)
+		storage.Data["json"] = map[string]string{"error": "Имя файла не указано"}
+		storage.ServeJSON()
+		return
+	}
+
+	filePath := filepath.Join(uploadDir, username.(string), fileName)
+
+	// Проверяем, существует ли файл
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		storage.Ctx.Output.SetStatus(404)
+		storage.Data["json"] = map[string]string{"error": "Файл не найден"}
+		storage.ServeJSON()
+		return
+	}
+
+	// Открываем файл
+	file, err := os.Open(filePath)
+	if err != nil {
+		storage.Ctx.Output.SetStatus(500)
+		storage.Data["json"] = map[string]string{"error": "Ошибка открытия файла"}
+		storage.ServeJSON()
+		return
+	}
+	defer file.Close()
+
+	// Устанавливаем заголовки для скачивания
+	storage.Ctx.Output.Header("Content-Type", "application/octet-stream")
+	storage.Ctx.Output.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
+	storage.Ctx.Output.Header("Content-Transfer-Encoding", "binary")
+	storage.Ctx.Output.Header("Expires", "0")
+
+	// Копируем содержимое файла в ответ
+	_, err = io.Copy(storage.Ctx.ResponseWriter, file)
+	if err != nil {
+		storage.Ctx.Output.SetStatus(500)
+		storage.Data["json"] = map[string]string{"error": "Ошибка при скачивании файла"}
+		storage.ServeJSON()
+		return
+	}
 }
