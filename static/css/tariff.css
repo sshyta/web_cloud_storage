@@ -1,9 +1,12 @@
 :root {
-    --bg-color: #f9f9f9;
-    --card-bg: #ffffff;
-    --primary-color: #007bff;
-    --secondary-color: #6c757d;
-    --text-color: #333;
+    --bg-color: #222222;
+    --card-bg: #333333;
+    --primary-color: #ffffff;
+    --secondary-color: #bbbbbb;
+    --text-color: #ffffff;
+    --button-bg: #444444;
+    --button-bg-hover: #666666;
+    --border-color: #555555;
 }
 
 body {
@@ -44,11 +47,11 @@ body {
 
 .card {
     background-color: var(--card-bg);
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 20px;
     width: 300px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
     transition: transform 0.3s;
 }
 
@@ -66,6 +69,7 @@ body {
     font-size: 36px;
     font-weight: bold;
     margin: 10px 0;
+    color: var(--primary-color);
 }
 
 .card ul {
@@ -77,11 +81,12 @@ body {
 .card ul li {
     font-size: 16px;
     margin: 10px 0;
+    color: var(--secondary-color);
 }
 
 .card button {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--button-bg);
+    color: var(--text-color);
     border: none;
     border-radius: 5px;
     padding: 10px 20px;
@@ -91,7 +96,7 @@ body {
 }
 
 .card button:hover {
-    background-color: #0056b3;
+    background-color: var(--button-bg-hover);
 }
 
 @media (max-width: 768px) {
