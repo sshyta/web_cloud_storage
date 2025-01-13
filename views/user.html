@@ -3,64 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>user</title>
+  <title>Управление пользователями</title>
   <link rel="stylesheet" href="/static/css/user.css">
 </head>
 <body>
 <div class="container">
-  <!-- Current User Panel -->
+  <!-- Панель текущего пользователя -->
   <div class="current-user-panel">
-    <h3>CURRENT USER</h3>
-    <div class="photo-placeholder">
-    </div>
+    <h3>ТЕКУЩИЙ ПОЛЬЗОВАТЕЛЬ</h3>
+    <div class="photo-placeholder"></div>
     <div class="info">
-      <p>username: <span>{{.Username}}</span></p>
-      <p>login: <span>{{.Login}}</span></p>
-      <p>email: <span>{{.WorkingEmail}}</span></p>
-      <p>role: <span>{{.RolesID}}</span></p>
+      <p>Имя пользователя: <span>{{.Username}}</span></p>
+      <p>Логин: <span>{{.Login}}</span></p>
+      <p>Email: <span>{{.WorkingEmail}}</span></p>
+      <p>Роль: <span>{{.RolesID}}</span></p>
+      <p>Тариф: <span>{{.TariffName}}</span></p>
     </div>
   </div>
 
-  <!-- центральная панель -->
+  <!-- Панель нового пользователя -->
   <div class="new-user-panel">
-    <h3>NEW USER</h3>
-    <form action="/user/add" method="POST">
-      <label for="new-username">Username:</label>
-      <input type="text" id="new-username" name="username" placeholder="Enter username" required>
+    <h3>НОВЫЙ ПОЛЬЗОВАТЕЛЬ</h3>
+    <form id="newUserForm">
+      <div>
+        <label for="new-username">Имя пользователя:</label>
+        <input type="text" id="new-username" name="username" required>
+      </div>
 
-      <label for="new-login">Login:</label>
-      <input type="text" id="new-login" name="login" placeholder="Enter login" required>
+      <div>
+        <label for="new-login">Логин:</label>
+        <input type="text" id="new-login" name="login" required>
+      </div>
 
-      <label for="new-password">Password:</label>
-      <input type="password" id="new-password" name="password" placeholder="Enter password" required>
+      <div>
+        <label for="new-password">Пароль:</label>
+        <input type="password" id="new-password" name="password" required>
+      </div>
 
-      <label for="new-email">Email:</label>
-      <input type="email" id="new-email" name="email" placeholder="Enter email" required>
+      <div>
+        <label for="new-email">Email:</label>
+        <input type="email" id="new-email" name="email" required>
+      </div>
 
-      <label for="new-roles-id">Role ID:</label>
-      <select id="new-roles-id" name="roles_id" required>
-        <option value="1">Admin</option>
-        <option value="2" selected>User</option>
-      </select>
+      <div>
+        <label for="new-roles-id">Роль:</label>
+        <select id="new-roles-id" name="roles_id" required>
+          <option value="1">Админ</option>
+          <option value="2" selected>Пользователь</option>
+        </select>
+      </div>
 
-      <button type="submit">Submit</button>
+      <div>
+        <label for="new-tariff-id">Тариф:</label>
+        <select id="new-tariff-id" name="tariff_id" required>
+          <option value="1">Базовый</option>
+          <option value="2">Про</option>
+          <option value="3">Ультра</option>
+        </select>
+      </div>
+
+      <button type="submit">Добавить пользователя</button>
     </form>
   </div>
 
-  <!-- список пользователей -->
+  <!-- Панель списка пользователей -->
   <div class="user-list-panel">
-    <h3>USER LIST</h3>
-    <div class="user-list" id="userList">
-      {{range .Users}}
-      <div class="user-item">
-        <p><strong>Username:</strong> {{.Username}}</p>
-        <p><strong>Login:</strong> {{.Login}}</p>
-        <p><strong>Email:</strong> {{.WorkingEmail}}</p>
-        <p><strong>Role ID:</strong> {{.RolesID}}</p>
-      </div>
-      <hr>
-      {{end}}
-    </div>
+    <h3>СПИСОК ПОЛЬЗОВАТЕЛЕЙ</h3>
+    <div id="userList" class="user-list"></div>
   </div>
 </div>
 
@@ -70,31 +79,86 @@
       const response = await fetch('/user/list');
       if (response.ok) {
         const users = await response.json();
-        const userList = document.querySelector('.user-list');
+        const userList = document.getElementById('userList');
         userList.innerHTML = "";
 
         users.forEach(user => {
           const userDiv = document.createElement('div');
           userDiv.className = 'user-item';
           userDiv.innerHTML = `
-            <p><strong>Username:</strong> ${user.Username}</p>
-            <p><strong>Login:</strong> ${user.Login}</p>
-            <p><strong>Email:</strong> ${user.WorkingEmail}</p>
-            <p><strong>Role ID:</strong> ${user.RolesID}</p>
-          `;
+                        <p><strong>Имя пользователя:</strong> ${user.Username}</p>
+                        <p><strong>Логин:</strong> ${user.Login}</p>
+                        <p><strong>Email:</strong> ${user.WorkingEmail}</p>
+                        <p><strong>Роль:</strong> ${user.RolesID}</p>
+                        <p><strong>Тариф:</strong>
+                            <select class="tariff-select" data-user-id="${user.UsersID}">
+                                <option value="1" ${user.TariffID === 1 ? 'selected' : ''}>Базовый</option>
+                                <option value="2" ${user.TariffID === 2 ? 'selected' : ''}>Про</option>
+                                <option value="3" ${user.TariffID === 3 ? 'selected' : ''}>Ультра</option>
+                            </select>
+                        </p>
+                    `;
           userList.appendChild(userDiv);
+        });
+
+        document.querySelectorAll('.tariff-select').forEach(select => {
+          select.addEventListener('change', function() {
+            updateUserTariff(this.dataset.userId, this.value);
+          });
         });
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Ошибка при получении пользователей:', error);
+    }
+  }
+
+  async function updateUserTariff(userId, tariffId) {
+    try {
+      const response = await fetch('/user/update-tariff', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `user_id=${userId}&tariff_id=${tariffId}`
+      });
+      const result = await response.json();
+      if (result.status === 'success') {
+        alert('Тариф успешно обновлен');
+      } else {
+        alert('Не удалось обновить тариф: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Ошибка при обновлении тарифа:', error);
+      alert('Не удалось обновить тариф');
     }
   }
 
   document.addEventListener("DOMContentLoaded", function() {
     fetchUsers();
+
+    document.getElementById('newUserForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      try {
+        const response = await fetch('/user/add', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert('Пользователь успешно добавлен');
+          this.reset();
+          fetchUsers();
+        } else {
+          alert('Не удалось добавить пользователя: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Ошибка при добавлении пользователя:', error);
+        alert('Не удалось добавить пользователя');
+      }
+    });
   });
 </script>
 
 </body>
 </html>
-

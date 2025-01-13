@@ -13,6 +13,7 @@ type Users struct {
 	WorkingEmail       string    `orm:"column(working_email); size(250);null"`
 	RolesID            int       `orm:"column(roles_id)"`
 	DateOfRegistration time.Time `orm:"column(date_of_registration); type(date); null"`
+	TariffID           int       `orm:"column(tariff_id);null"`
 }
 
 func init() {

@@ -7,7 +7,6 @@ import (
 	"time"
 	"web_cloud_storage/models"
 	"web_cloud_storage/utils"
-	_ "web_cloud_storage/utils"
 )
 
 type UserController struct {
@@ -17,7 +16,6 @@ type UserController struct {
 func (c *UserController) Get() {
 	o := orm.NewOrm()
 
-	// Get current user from session
 	username := c.GetSession("username")
 	if username != nil {
 		var currentUser models.Users
@@ -27,14 +25,20 @@ func (c *UserController) Get() {
 			c.Data["Login"] = currentUser.Login
 			c.Data["WorkingEmail"] = currentUser.WorkingEmail
 			c.Data["RolesID"] = currentUser.RolesID
+
+			// Fetch tariff name
+			var tariff models.Tariff
+			err = o.QueryTable("tariff").Filter("tariff_id", currentUser.TariffID).One(&tariff)
+			if err == nil {
+				c.Data["TariffName"] = tariff.TariffName
+			}
 		}
 	}
 
-	// Get all users for the list
 	var users []models.Users
 	_, err := o.QueryTable("users").All(&users)
 	if err != nil {
-		beego.Error("Error fetching users:", err)
+		beego.Error("Ошибка при получении пользователей:", err)
 		c.Data["Users"] = []models.Users{}
 	} else {
 		c.Data["Users"] = users
@@ -48,11 +52,11 @@ func (c *UserController) GetUsers() {
 	var users []models.Users
 	_, err := o.QueryTable("users").All(&users)
 	if err != nil {
-		beego.Error("Error fetching users:", err)
+		beego.Error("Ошибка при получении пользователей:", err)
 		c.Ctx.Output.SetStatus(500)
-		c.Data["json"] = map[string]string{"error": "Failed to retrieve users"}
+		c.Data["json"] = map[string]string{"error": "Не удалось получить пользователей"}
 	} else {
-		c.Data["json"] = users // Отправляем данные в JSON-формате
+		c.Data["json"] = users
 	}
 	c.ServeJSON()
 }
@@ -64,21 +68,28 @@ func (c *UserController) AddUser() {
 		login := c.GetString("login")
 		email := c.GetString("email")
 		rolesIDStr := c.GetString("roles_id")
+		tariffIDStr := c.GetString("tariff_id")
 
-		if username == "" || password == "" || login == "" || email == "" || rolesIDStr == "" {
-			c.Data["json"] = map[string]string{"error": "All fields are required"}
+		if username == "" || password == "" || login == "" || email == "" || rolesIDStr == "" || tariffIDStr == "" {
+			c.Data["json"] = map[string]string{"error": "Все поля обязательны для заполнения"}
 			c.ServeJSON()
 			return
 		}
 
 		rolesID, err := strconv.Atoi(rolesIDStr)
 		if err != nil || rolesID < 1 {
-			c.Data["json"] = map[string]string{"error": "Invalid role ID"}
+			c.Data["json"] = map[string]string{"error": "Неверный ID роли"}
 			c.ServeJSON()
 			return
 		}
 
-		// Хеширование пароля
+		tariffID, err := strconv.Atoi(tariffIDStr)
+		if err != nil || tariffID < 1 {
+			c.Data["json"] = map[string]string{"error": "Неверный ID тарифа"}
+			c.ServeJSON()
+			return
+		}
+
 		hashedPassword := utils.HashPassword(password)
 
 		user := models.Users{
@@ -87,21 +98,41 @@ func (c *UserController) AddUser() {
 			Login:              login,
 			WorkingEmail:       email,
 			RolesID:            rolesID,
+			TariffID:           tariffID, //Fixed tariffID type
 			DateOfRegistration: time.Now(),
 		}
 
 		o := orm.NewOrm()
 		_, err = o.Insert(&user)
 		if err != nil {
-			c.Data["json"] = map[string]string{"error": "Failed to save user: " + err.Error()}
+			c.Data["json"] = map[string]string{"error": "Не удалось сохранить пользователя: " + err.Error()}
 			c.ServeJSON()
 			return
 		}
 
-		c.Data["json"] = map[string]string{"success": "User added successfully"}
+		c.Data["json"] = map[string]string{"success": "Пользователь успешно добавлен"}
 		c.ServeJSON()
 	} else {
-		c.Data["json"] = map[string]string{"error": "Invalid request method"}
+		c.Data["json"] = map[string]string{"error": "Неверный метод запроса"}
 		c.ServeJSON()
 	}
+}
+
+func (c *UserController) UpdateTariff() {
+	userID, _ := c.GetInt("user_id")
+	tariffID, _ := c.GetInt("tariff_id")
+
+	o := orm.NewOrm()
+	user := models.Users{UsersID: userID}
+	if err := o.Read(&user); err == nil {
+		user.TariffID = tariffID
+		if _, err := o.Update(&user, "TariffID"); err == nil {
+			c.Data["json"] = map[string]interface{}{"status": "success"}
+		} else {
+			c.Data["json"] = map[string]interface{}{"status": "error", "message": err.Error()}
+		}
+	} else {
+		c.Data["json"] = map[string]interface{}{"status": "error", "message": "Пользователь не найден"}
+	}
+	c.ServeJSON()
 }
