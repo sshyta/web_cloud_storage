@@ -21,9 +21,9 @@
     </div>
   </div>
 
-  {{if eq .RolesID 1}}
   <!-- Панель нового пользователя -->
-  <div class="new-user-panel">
+  <div class="new-user-panel" style="display: none">
+    {{if eq .RolesID 1}}
     <h3>НОВЫЙ ПОЛЬЗОВАТЕЛЬ</h3>
     <form id="newUserForm">
       <div>
@@ -51,6 +51,7 @@
         <select id="new-roles-id" name="roles_id" required>
           <option value="1">Админ</option>
           <option value="2" selected>Пользователь</option>
+          <option value="3" selected>Менеджер хранилища</option>
         </select>
       </div>
 
@@ -65,14 +66,16 @@
 
       <button type="submit">Добавить пользователя</button>
     </form>
+    {{end}}
   </div>
 
   <!-- Панель списка пользователей -->
-  <div class="user-list-panel">
+  <div class="user-list-panel" style="display: none">
+    {{if or (eq .RolesID 1) (eq .RolesID 3)}}
     <h3>СПИСОК ПОЛЬЗОВАТЕЛЕЙ</h3>
     <div id="userList" class="user-list"></div>
+    {{end}}
   </div>
-  {{end}}
 </div>
 
 <script>
@@ -137,13 +140,25 @@
   }
 
   document.addEventListener("DOMContentLoaded", function() {
-    const role = parseInt('{{.RolesID}}', 10); // Убедитесь, что .RolesID передан в шаблон
-    if (role !== 1) {
-      document.querySelector('.new-user-panel').style.display = 'none';
-      document.querySelector('.user-list-panel').style.display = 'none';
+    const role = parseInt('{{.RolesID}}', 10);
+
+    const newUserPanel = document.querySelector('.new-user-panel');
+    const userListPanel = document.querySelector('.user-list-panel');
+
+    if (role === 1) {
+      if (newUserPanel) newUserPanel.style.display = 'block';
+      if (userListPanel) userListPanel.style.display = 'block';
+    } else if (role === 3) {
+      if (newUserPanel) newUserPanel.style.display = 'none';
+      if (userListPanel) userListPanel.style.display = 'block';
+    } else {
+      if (newUserPanel) newUserPanel.style.display = 'none';
+      if (userListPanel) userListPanel.style.display = 'none';
     }
 
-    fetchUsers();
+    if (role === 1 || role === 3) {
+      fetchUsers();
+    }
 
     document.getElementById('newUserForm').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -167,6 +182,7 @@
       }
     });
   });
+
 </script>
 
 </body>
