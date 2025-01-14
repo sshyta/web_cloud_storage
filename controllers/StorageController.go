@@ -3,16 +3,28 @@ package controllers
 import (
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 	"io"
 	"os"
 	"path/filepath"
+	"web_cloud_storage/models"
 )
 
 type StorageController struct {
 	beego.Controller
 }
 
-const uploadDir = "./storage"
+const (
+	uploadDir = "./storage"
+	GB        = 1024 * 1024 * 1024 // 1 GB in bytes
+	TB        = GB * 1024          // 1 TB in bytes
+)
+
+var tariffLimits = map[int]int64{
+	1: 10 * GB,  // Base - 10GB
+	2: 100 * GB, // Pro - 100GB
+	3: 1 * TB,   // Ultra - 1TB
+}
 
 func init() {
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
@@ -20,62 +32,152 @@ func init() {
 	}
 }
 
-func (c *StorageController) Get() {
-	username := c.GetSession("username")
-	if username == nil {
-		username = "Guest"
-	}
-	c.Data["Username"] = username
-	c.TplName = "storage.html"
+func (storage *StorageController) Get() {
+	storage.TplName = "storage.html"
 }
 
 func (storage *StorageController) Upload() {
-	// Get username from session
+	beego.Info("Начало загрузки файла")
 	username := storage.GetSession("username")
 	if username == nil {
-		storage.Ctx.Output.SetStatus(401)
-		storage.Data["json"] = map[string]string{"error": "Unauthorized"}
+		storage.Data["json"] = map[string]string{"error": "Не авторизован"}
 		storage.ServeJSON()
 		return
 	}
 
+	o := orm.NewOrm()
+	var user models.Users
+	err := o.QueryTable("users").Filter("login", username).One(&user)
+	if err != nil {
+		beego.Error("Ошибка получения информации о пользователе:", err)
+		storage.Data["json"] = map[string]string{"error": "Ошибка получения информации о пользователе"}
+		storage.ServeJSON()
+		return
+	}
+
+	beego.Info(fmt.Sprintf("User: %+v", user))
+
+	storageLimit, ok := tariffLimits[user.TariffID]
+	if !ok {
+		beego.Error(fmt.Sprintf("Неизвестный тариф: %d", user.TariffID))
+		// Set a default limit if the tariff is unknown
+		storageLimit = tariffLimits[1] // Use the base tariff as default
+	}
+
+	userDir := filepath.Join(uploadDir, username.(string))
+	var usedSpace int64 = 0
+
+	err = filepath.Walk(userDir, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			usedSpace += info.Size()
+		}
+		return nil
+	})
+
 	file, header, err := storage.GetFile("file")
 	if err != nil {
-		storage.Ctx.Output.SetStatus(400)
-		storage.Data["json"] = map[string]string{"error": "Failed to retrieve file"}
+		beego.Error("Ошибка получения файла:", err)
+		storage.Data["json"] = map[string]string{"error": "Ошибка получения файла"}
 		storage.ServeJSON()
 		return
 	}
 	defer file.Close()
 
-	// Create user-specific directory
-	userDir := filepath.Join(uploadDir, username.(string))
-	if err := os.MkdirAll(userDir, os.ModePerm); err != nil {
-		storage.Ctx.Output.SetStatus(500)
-		storage.Data["json"] = map[string]string{"error": "Failed to create user directory"}
+	beego.Info(fmt.Sprintf("Текущее использование: %d, Размер файла: %d, Лимит: %d", usedSpace, header.Size, storageLimit))
+
+	if usedSpace+header.Size > storageLimit {
+		storage.Data["json"] = map[string]string{"error": "Превышен лимит хранилища для вашего тарифа"}
 		storage.ServeJSON()
 		return
 	}
 
-	// Save file in user's directory
+	if err := os.MkdirAll(userDir, os.ModePerm); err != nil {
+		beego.Error("Ошибка создания директории:", err)
+		storage.Data["json"] = map[string]string{"error": "Ошибка создания директории"}
+		storage.ServeJSON()
+		return
+	}
+
 	filePath := filepath.Join(userDir, header.Filename)
 	out, err := os.Create(filePath)
 	if err != nil {
-		storage.Ctx.Output.SetStatus(500)
-		storage.Data["json"] = map[string]string{"error": "Failed to save file"}
+		beego.Error("Ошибка сохранения файла:", err)
+		storage.Data["json"] = map[string]string{"error": "Ошибка сохранения файла"}
 		storage.ServeJSON()
 		return
 	}
 	defer out.Close()
 
 	if _, err = io.Copy(out, file); err != nil {
-		storage.Ctx.Output.SetStatus(500)
-		storage.Data["json"] = map[string]string{"error": "Failed to write file"}
+		beego.Error("Ошибка записи файла:", err)
+		storage.Data["json"] = map[string]string{"error": "Ошибка записи файла"}
 		storage.ServeJSON()
 		return
 	}
 
-	storage.Data["json"] = map[string]string{"message": "File uploaded successfully"}
+	beego.Info(fmt.Sprintf("Файл %s успешно загружен", header.Filename))
+	storage.Data["json"] = map[string]string{"message": "Файл успешно загружен"}
+	storage.ServeJSON()
+}
+
+func (storage *StorageController) GetStorageInfo() {
+	response := make(map[string]interface{})
+
+	username := storage.GetSession("username")
+	if username == nil {
+		response["error"] = "Не авторизован"
+		storage.Data["json"] = response
+		storage.ServeJSON()
+		return
+	}
+
+	o := orm.NewOrm()
+	var user models.Users
+	err := o.QueryTable("users").Filter("login", username).One(&user)
+	if err != nil {
+		response["error"] = fmt.Sprintf("Ошибка получения информации о пользователе: %v", err)
+		storage.Data["json"] = response
+		storage.ServeJSON()
+		return
+	}
+
+	beego.Info(fmt.Sprintf("User: %+v", user))
+
+	storageLimit, ok := tariffLimits[user.TariffID]
+	if !ok {
+		beego.Error(fmt.Sprintf("Неизвестный тариф: %d", user.TariffID))
+		// Set a default limit if the tariff is unknown
+		storageLimit = tariffLimits[1] // Use the base tariff as default
+	}
+
+	userDir := filepath.Join(uploadDir, username.(string))
+	var usedSpace int64 = 0
+
+	err = filepath.Walk(userDir, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			usedSpace += info.Size()
+		}
+		return nil
+	})
+
+	if err != nil && !os.IsNotExist(err) {
+		response["error"] = fmt.Sprintf("Ошибка подсчета использованного места: %v", err)
+		storage.Data["json"] = response
+		storage.ServeJSON()
+		return
+	}
+
+	response["used"] = usedSpace
+	response["limit"] = storageLimit
+	response["percentage"] = float64(usedSpace) / float64(storageLimit) * 100
+
+	storage.Data["json"] = response
 	storage.ServeJSON()
 }
 

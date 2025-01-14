@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"strconv"
@@ -13,6 +14,7 @@ type UserController struct {
 	beego.Controller
 }
 
+// Get handles the GET request for the user page
 func (c *UserController) Get() {
 	o := orm.NewOrm()
 
@@ -31,7 +33,11 @@ func (c *UserController) Get() {
 			err = o.QueryTable("tariff").Filter("tariff_id", currentUser.TariffID).One(&tariff)
 			if err == nil {
 				c.Data["TariffName"] = tariff.TariffName
+			} else {
+				beego.Error("Ошибка при получении тарифа:", err)
 			}
+		} else {
+			beego.Error("Ошибка при получении данных пользователя:", err)
 		}
 	}
 
@@ -47,6 +53,7 @@ func (c *UserController) Get() {
 	c.TplName = "user.html"
 }
 
+// GetUsers returns a list of all users
 func (c *UserController) GetUsers() {
 	o := orm.NewOrm()
 	var users []models.Users
@@ -61,6 +68,7 @@ func (c *UserController) GetUsers() {
 	c.ServeJSON()
 }
 
+// AddUser handles the creation of a new user
 func (c *UserController) AddUser() {
 	if c.Ctx.Input.Method() == "POST" {
 		username := c.GetString("username")
@@ -98,13 +106,14 @@ func (c *UserController) AddUser() {
 			Login:              login,
 			WorkingEmail:       email,
 			RolesID:            rolesID,
-			TariffID:           tariffID, //Fixed tariffID type
+			TariffID:           tariffID,
 			DateOfRegistration: time.Now(),
 		}
 
 		o := orm.NewOrm()
 		_, err = o.Insert(&user)
 		if err != nil {
+			beego.Error("Ошибка при сохранении пользователя:", err)
 			c.Data["json"] = map[string]string{"error": "Не удалось сохранить пользователя: " + err.Error()}
 			c.ServeJSON()
 			return
@@ -118,6 +127,7 @@ func (c *UserController) AddUser() {
 	}
 }
 
+// UpdateTariff updates the tariff for a specific user
 func (c *UserController) UpdateTariff() {
 	userID, _ := c.GetInt("user_id")
 	tariffID, _ := c.GetInt("tariff_id")
@@ -129,10 +139,35 @@ func (c *UserController) UpdateTariff() {
 		if _, err := o.Update(&user, "TariffID"); err == nil {
 			c.Data["json"] = map[string]interface{}{"status": "success"}
 		} else {
+			beego.Error("Ошибка при обновлении тарифа пользователя:", err)
 			c.Data["json"] = map[string]interface{}{"status": "error", "message": err.Error()}
 		}
 	} else {
+		beego.Error("Пользователь не найден:", err)
 		c.Data["json"] = map[string]interface{}{"status": "error", "message": "Пользователь не найден"}
 	}
 	c.ServeJSON()
+}
+
+// CheckAndUpdateUserTariffs checks and updates user tariffs if necessary
+func (c *UserController) CheckAndUpdateUserTariffs() {
+	o := orm.NewOrm()
+	var users []*models.Users
+	_, err := o.QueryTable("users").All(&users)
+	if err != nil {
+		beego.Error("Ошибка при получении пользователей:", err)
+		return
+	}
+
+	for _, user := range users {
+		if user.TariffID == 0 || user.TariffID > 3 {
+			user.TariffID = 1 // Устанавливаем базовый тариф по умолчанию
+			_, err := o.Update(user, "TariffID")
+			if err != nil {
+				beego.Error("Ошибка при обновлении тарифа пользователя:", err)
+			} else {
+				beego.Info(fmt.Sprintf("Обновлен тариф для пользователя %s: %d", user.Username, user.TariffID))
+			}
+		}
+	}
 }

@@ -7,32 +7,10 @@
     <link rel="stylesheet" href="/static/css/storage.css">
 </head>
 <body>
-<script>
-    async function handleLogout() {
-        try {
-            const response = await fetch('/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include' // Важно для работы с сессиями
-            });
-
-            if (response.ok) {
-                window.location.href = '/'; // Перенаправление на страницу входа
-            } else {
-                console.error('Logout failed');
-            }
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
-    }
-</script>
-
 <div class="header">
     <div class="logo">| web scape</div>
     <div class="user-info">
-        <button onclick="window.location.href='/user.html'" class="profile-btn">Profile</button>
+        <button onclick="window.location.href='/user'" class="profile-btn">Profile</button>
         <button onclick="handleLogout()" class="logout-btn">Logout</button>
         <img src="/static/img/avatar.png" alt="User Avatar">
         <span>{{.Username}}</span>
@@ -41,6 +19,16 @@
 
 <div class="content-wrapper">
     <div class="sidebar">
+        <div class="storage-info">
+            <h3>Использование хранилища</h3>
+            <div class="progress-bar">
+                <div class="progress" id="storageProgress"></div>
+            </div>
+            <div class="storage-details">
+                <span id="usedStorage">0 GB</span> / <span id="totalStorage">0 GB</span>
+            </div>
+        </div>
+
         <form id="uploadForm" enctype="multipart/form-data" method="post" action="/storage/upload">
             <input type="file" name="file" id="fileInput" hidden>
             <button type="button" onclick="document.getElementById('fileInput').click()">Upload File</button>
@@ -51,52 +39,167 @@
 
     <div class="main-content">
         <input type="text" placeholder="Search files..." class="search-box" id="searchBox" oninput="searchFiles()">
-
-        <div id="fileList" class="file-list">
-        </div>
+        <div id="fileList" class="file-list"></div>
     </div>
 </div>
 
 <div class="notification" id="notification" style="display: none;">File uploaded successfully!</div>
 
 <script>
-    async function viewFile(fileName) {
+    async function handleLogout() {
         try {
-            const response = await fetch(`/storage/view?file=${encodeURIComponent(fileName)}`);
+            const response = await fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                window.location.href = '/';
+            } else {
+                console.error('Logout failed');
+            }
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
+    }
+
+    function formatSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    async function updateStorageInfo() {
+        try {
+            const response = await fetch('/storage/info');
             if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('Файл не найден');
-                } else {
-                    throw new Error('Ошибка при открытии файла');
-                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error);
             }
 
-            // Получаем blob из ответа
-            const blob = await response.blob();
+            const progressBar = document.getElementById('storageProgress');
+            const percentage = Math.min(data.percentage, 100);
+            progressBar.style.width = `${percentage}%`;
 
-            // Создаем URL для blob
-            const url = window.URL.createObjectURL(blob);
+            if (percentage > 90) {
+                progressBar.style.backgroundColor = '#ff4444';
+            } else if (percentage > 70) {
+                progressBar.style.backgroundColor = '#ffbb33';
+            } else {
+                progressBar.style.backgroundColor = '#4CAF50';
+            }
 
-            // Открываем URL в новом окне
-            window.open(url, '_blank');
-
-            // Освобождаем URL после открытия
-            setTimeout(() => window.URL.revokeObjectURL(url), 100);
+            document.getElementById('usedStorage').textContent = formatSize(data.used);
+            document.getElementById('totalStorage').textContent = formatSize(data.limit);
         } catch (error) {
-            alert(error.message);
+            console.error('Ошибка:', error.message);
+            const storageInfo = document.querySelector('.storage-info');
+            storageInfo.innerHTML = `<p class="error-message">Ошибка: ${error.message}</p>`;
+        }
+    }
+
+    async function fetchFiles() {
+        try {
+            const response = await fetch('/storage/files');
+            if (!response.ok) throw new Error('Ошибка получения списка файлов');
+
+            const files = await response.json();
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            if (Array.isArray(files) && files.length > 0) {
+                files.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.classList.add('file-item');
+                    fileItem.innerHTML = `
+                        <span class="file-name">${file}</span>
+                        <div class="file-actions">
+                            <button onclick="downloadFile('${file}')">Скачать</button>
+                            <button onclick="editFile('${file}')">Редактировать</button>
+                            <button onclick="deleteFile('${file}')">Удалить</button>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+            } else {
+                fileList.innerHTML = '<div class="no-files">Файлы не найдены</div>';
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            document.getElementById('fileList').innerHTML =
+                '<div class="error">Ошибка загрузки файлов. Пожалуйста, попробуйте снова.</div>';
+        }
+    }
+
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch('/storage/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                document.getElementById('notification').textContent = 'Файл успешно загружен';
+                document.getElementById('notification').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('notification').style.display = 'none';
+                }, 3000);
+
+                await updateStorageInfo();
+                await fetchFiles();
+            } else {
+                alert(result.error || 'Ошибка загрузки файла');
+            }
+        } catch (error) {
+            console.error('Полная информация об ошибке:', error);
+            alert('Ошибка загрузки файла: ' + error.message);
+        }
+    };
+
+    async function deleteFile(fileName) {
+        if (confirm(`Вы уверены, что хотите удалить файл ${fileName}?`)) {
+            try {
+                const response = await fetch(`/storage/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `file=${encodeURIComponent(fileName)}`
+                });
+
+                if (!response.ok) throw new Error('Ошибка удаления файла');
+
+                alert('Файл успешно удален');
+                await updateStorageInfo();
+                await fetchFiles();
+            } catch (error) {
+                alert('Ошибка при удалении файла: ' + error.message);
+            }
         }
     }
 
     async function editFile(fileName) {
         try {
-            // Получаем содержимое файла
             const response = await fetch(`/storage/view?file=${encodeURIComponent(fileName)}`);
             if (!response.ok) {
                 throw new Error('Ошибка получения содержимого файла');
             }
             const content = await response.text();
 
-            // Создаем модальное окно для редактирования
             const modal = document.createElement('div');
             modal.style.position = 'fixed';
             modal.style.left = '0';
@@ -109,7 +212,7 @@
             modal.style.alignItems = 'center';
 
             const modalContent = document.createElement('div');
-            modalContent.style.backgroundColor = 'white';
+            modalContent.style.backgroundColor = '#333';
             modalContent.style.padding = '20px';
             modalContent.style.borderRadius = '5px';
             modalContent.style.width = '80%';
@@ -120,9 +223,14 @@
             textarea.style.width = '100%';
             textarea.style.height = '300px';
             textarea.style.marginBottom = '10px';
+            textarea.style.backgroundColor = '#222';
+            textarea.style.color = '#fff';
+            textarea.style.border = '1px solid #444';
+            textarea.style.padding = '10px';
 
             const saveButton = document.createElement('button');
             saveButton.textContent = 'Сохранить';
+            saveButton.style.marginRight = '10px';
             saveButton.onclick = async () => {
                 try {
                     const saveResponse = await fetch('/storage/edit', {
@@ -139,7 +247,7 @@
 
                     alert('Файл успешно сохранен');
                     document.body.removeChild(modal);
-                    await fetchFiles(); // Обновляем список файлов
+                    await fetchFiles();
                 } catch (error) {
                     alert('Ошибка при сохранении файла: ' + error.message);
                 }
@@ -161,27 +269,6 @@
         }
     }
 
-    async function deleteFile(fileName) {
-        if (confirm(`Вы уверены, что хотите удалить файл ${fileName}?`)) {
-            try {
-                const response = await fetch(`/storage/delete`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `file=${encodeURIComponent(fileName)}`
-                });
-
-                if (!response.ok) throw new Error('Ошибка удаления файла');
-
-                alert('Файл успешно удален');
-                await fetchFiles(); // Обновляем список файлов
-            } catch (error) {
-                alert('Ошибка при удалении файла: ' + error.message);
-            }
-        }
-    }
-
     async function downloadFile(fileName) {
         try {
             const response = await fetch(`/storage/download?file=${encodeURIComponent(fileName)}`);
@@ -193,10 +280,7 @@
                 }
             }
 
-            // Получаем blob из ответа
             const blob = await response.blob();
-
-            // Создаем ссылку для скачивания
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
@@ -205,7 +289,6 @@
             document.body.appendChild(a);
             a.click();
 
-            // Удаляем ссылку после скачивания
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
         } catch (error) {
@@ -213,43 +296,12 @@
         }
     }
 
-    // Обновляем функцию fetchFiles, чтобы использовать новую кнопку
-    async function fetchFiles() {
-        try {
-            const response = await fetch('/storage/files');
-            if (!response.ok) throw new Error('Ошибка получения списка файлов');
-
-            const files = await response.json();
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = '';
-
-            if (Array.isArray(files) && files.length > 0) {
-                files.forEach(file => {
-                    const fileItem = document.createElement('div');
-                    fileItem.classList.add('file-item');
-                    fileItem.innerHTML = `
-                        <span class="file-name">${file}</span>
-                        <div class="file-actions">
-                            <button class="download-btn" onclick="downloadFile('${file}')">Скачать</button>
-                            <button class="edit-btn" onclick="editFile('${file}')">Редактировать</button>
-                            <button class="delete-btn" onclick="deleteFile('${file}')">Удалить</button>
-                        </div>
-                    `;
-                    fileList.appendChild(fileItem);
-                });
-            } else {
-                fileList.innerHTML = '<div class="no-files">Файлы не найдены</div>';
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            document.getElementById('fileList').innerHTML =
-                '<div class="error">Ошибка загрузки файлов. Пожалуйста, попробуйте снова.</div>';
-        }
-    }
-
-    // Вызываем fetchFiles при загрузке страницы
-    document.addEventListener('DOMContentLoaded', fetchFiles);
+    document.addEventListener('DOMContentLoaded', () => {
+        updateStorageInfo();
+        fetchFiles();
+    });
 </script>
 
 </body>
 </html>
+

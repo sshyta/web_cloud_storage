@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/lib/pq"
+	"web_cloud_storage/controllers"
 	_ "web_cloud_storage/routers"
 )
 
@@ -24,6 +25,8 @@ func main() {
 	beego.SetStaticPath("/static", "static")
 	beego.BConfig.Listen.HTTPAddr = "localhost"
 	beego.BConfig.Listen.HTTPPort = 8181
+	userController := &controllers.UserController{}
+	userController.CheckAndUpdateUserTariffs()
 
 	setLogPath("logs/app.log") // Вызов функции логов
 	beego.Run()
