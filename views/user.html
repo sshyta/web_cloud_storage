@@ -21,6 +21,7 @@
     </div>
   </div>
 
+  {{if eq .RolesID 1}}
   <!-- Панель нового пользователя -->
   <div class="new-user-panel">
     <h3>НОВЫЙ ПОЛЬЗОВАТЕЛЬ</h3>
@@ -71,9 +72,11 @@
     <h3>СПИСОК ПОЛЬЗОВАТЕЛЕЙ</h3>
     <div id="userList" class="user-list"></div>
   </div>
+  {{end}}
 </div>
 
 <script>
+
   async function fetchUsers() {
     try {
       const response = await fetch('/user/list');
@@ -134,6 +137,12 @@
   }
 
   document.addEventListener("DOMContentLoaded", function() {
+    const role = parseInt('{{.RolesID}}', 10); // Убедитесь, что .RolesID передан в шаблон
+    if (role !== 1) {
+      document.querySelector('.new-user-panel').style.display = 'none';
+      document.querySelector('.user-list-panel').style.display = 'none';
+    }
+
     fetchUsers();
 
     document.getElementById('newUserForm').addEventListener('submit', async function(e) {

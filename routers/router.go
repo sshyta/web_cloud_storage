@@ -27,5 +27,4 @@ func init() {
 	beego.Router("/tariff", &controllers.TariffController{}, "get:Get")
 
 	beego.InsertFilter("/storage/*", beego.BeforeRouter, filters.AuthMiddleware)
-
 }
