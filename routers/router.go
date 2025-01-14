@@ -8,7 +8,7 @@ import (
 
 func init() {
 	beego.Router("/", &controllers.MainController{}, "get:Get;post:Post")
-	beego.Router("/user", &controllers.UserController{})
+	beego.Router("/user", &controllers.UserController{}, "get:Get")
 	beego.Router("/user/add", &controllers.UserController{}, "post:AddUser")
 	beego.Router("/user/update-tariff", &controllers.UserController{}, "post:UpdateTariff")
 	beego.Router("/user/list", &controllers.UserController{}, "get:GetUsers") // Роут для отображения пользователей
@@ -24,7 +24,7 @@ func init() {
 	beego.Router("/storage/download", &controllers.StorageController{}, "get:Download")
 	beego.Router("/storage/info", &controllers.StorageController{}, "get:GetStorageInfo")
 
-	beego.Router("/tariff", &controllers.TariffController{})
+	beego.Router("/tariff", &controllers.TariffController{}, "get:Get")
 
 	beego.InsertFilter("/storage/*", beego.BeforeRouter, filters.AuthMiddleware)
 
