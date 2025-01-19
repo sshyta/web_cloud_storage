@@ -32,8 +32,25 @@ func init() {
 	}
 }
 
-func (storage *StorageController) Get() {
-	storage.TplName = "storage.html"
+func (c *StorageController) Get() {
+	username := c.GetSession("username")
+	if username == nil {
+		c.Redirect("/", 302)
+		return
+	}
+
+	o := orm.NewOrm()
+	user := models.Users{}
+	err := o.QueryTable("users").Filter("login", username.(string)).One(&user)
+	if err != nil {
+		c.Data["Username"] = "Guest"
+		c.Data["RolesID"] = 0
+	} else {
+		c.Data["Username"] = user.Username
+		c.Data["RolesID"] = user.RolesID
+	}
+
+	c.TplName = "storage.html"
 }
 
 func (storage *StorageController) Upload() {

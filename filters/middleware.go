@@ -4,7 +4,7 @@ import (
 	"github.com/astaxie/beego/context"
 )
 
-// AuthMiddleware проверяет, есть ли пользователь в сессии, и перенаправляет на страницу входа, если нет
+// AuthMiddleware checks if the user is logged in and redirects to the login page if not
 func AuthMiddleware(ctx *context.Context) {
 	username := ctx.Input.Session("username")
 	if username == nil {

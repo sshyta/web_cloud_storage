@@ -36,6 +36,14 @@
             <button type="submit">Submit Upload</button>
         </form>
         <button onclick="fetchFiles()">All Files</button>
+
+        {{if .RolesID}}
+        {{if eq .RolesID 1}}
+        <button onclick="window.location.href='/admin'" class="admin-btn">Admin Panel</button>
+        {{end}}
+        {{else}}
+        <p>Роль пользователя не задана.</p>
+        {{end}}
     </div>
 
     <div class="main-content">

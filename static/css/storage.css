@@ -232,6 +232,23 @@ body {
     text-align: right;
 }
 
+.admin-btn {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.admin-btn:hover {
+    background-color: #45a049;
+}
+
 @keyframes fadeOut {
     0% { opacity: 1; }
     100% { opacity: 0; display: none; }

@@ -26,5 +26,11 @@ func init() {
 
 	beego.Router("/tariff", &controllers.TariffController{}, "get:Get")
 
+	beego.Router("/admin", &controllers.AdminController{}, "get:Get")
+	beego.Router("/admin/user-info", &controllers.AdminController{}, "get:GetUserInfo")
+	beego.Router("/admin/storage-report", &controllers.AdminController{}, "get:GetStorageReport")
+	beego.Router("/admin/file-list", &controllers.AdminController{}, "get:GetFileList")
+
+	beego.InsertFilter("/admin/*", beego.BeforeRouter, filters.AdminMiddleware)
 	beego.InsertFilter("/storage/*", beego.BeforeRouter, filters.AuthMiddleware)
 }
