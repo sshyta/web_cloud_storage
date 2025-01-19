@@ -1,0 +1,57 @@
+:root {
+    --bg-color: #222222;
+    --text-color: #ccc;
+    --button-bg: #000;
+    --button-text: #fff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    margin-left: 40px;
+    padding: 0;
+}
+
+.admin-actions {
+    width: 200px;
+    height: 300px;
+}
+
+.userInfo {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    margin: 20px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.storageReport {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    margin: 20px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.fileList {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    margin: 20px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
