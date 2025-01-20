@@ -10,6 +10,7 @@ import (
 )
 
 func init() {
+	/* Инициализация базы данных*/
 	orm.RegisterDataBase("default", "postgres", "user=postgres password=467912 "+
 		"host=127.0.0.1 port=5432 dbname=web_cloud_storage sslmode=disable")
 	orm.RegisterDriver("db", orm.DRMySQL)

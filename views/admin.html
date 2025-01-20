@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="/static/css/admin.css">
+
 </head>
 <body>
 <div class="container">
@@ -19,18 +20,19 @@
 
 <script>
     async function printUserInfo() {
-        const response = await fetch('/admin/user-info');
+        const username = prompt("Enter username:");
+        const response = await fetch(`/admin/user-info?username=${username}`);
         const data = await response.json();
         const printContent = `
-                <h2>User Information</h2>
-                <p>Name: ${data.name}</p>
-                <p>Email: ${data.email}</p>
-                <p>Storage Used: ${data.storageUsed}</p>
-                <h3>Files:</h3>
-                <ul>
-                    ${data.files.map(file => `<li>${file.name} - ${file.size}</li>`).join('')}
-                </ul>
-            `;
+            <h2>User Information</h2>
+            <p>Name: ${data.name}</p>
+            <p>Email: ${data.email}</p>
+            <p>Storage Used: ${data.storageUsed}</p>
+            <h3>Files:</h3>
+            <ul>
+                ${data.files.map(file => `<li>${file.name} - ${file.size}</li>`).join('')}
+            </ul>
+        `;
         document.getElementById('printArea').innerHTML = printContent;
         window.print();
     }
@@ -41,15 +43,15 @@
         const response = await fetch(`/admin/storage-report?start=${startDate}&end=${endDate}`);
         const data = await response.json();
         const printContent = `
-                <h2>Storage Usage Report</h2>
-                <p>Period: ${startDate} to ${endDate}</p>
-                <p>Total Usage: ${data.totalUsage}</p>
-                <p>Average Daily Usage: ${data.averageUsage}</p>
-                <h3>Daily Breakdown:</h3>
-                <ul>
-                    ${Object.entries(data.dailyUsage).map(([date, usage]) => `<li>${date}: ${usage}</li>`).join('')}
-                </ul>
-            `;
+            <h2>Storage Usage Report</h2>
+            <p>Period: ${startDate} to ${endDate}</p>
+            <p>Total Usage: ${data.totalUsage}</p>
+            <p>Average Daily Usage: ${data.averageUsage}</p>
+            <h3>Daily Breakdown:</h3>
+            <ul>
+                ${Object.entries(data.dailyUsage).map(([date, usage]) => `<li>${date}: ${usage}</li>`).join('')}
+            </ul>
+        `;
         document.getElementById('printArea').innerHTML = printContent;
         window.print();
     }
@@ -58,26 +60,26 @@
         const response = await fetch('/admin/file-list');
         const data = await response.json();
         const printContent = `
-                <h2>File List with Access Information</h2>
-                <table>
+            <h2>File List with Access Information</h2>
+            <table>
+                <tr>
+                    <th>File Name</th>
+                    <th>Owner</th>
+                    <th>Size</th>
+                    <th>Last Modified</th>
+                    <th>Access Permissions</th>
+                </tr>
+                ${data.map(file => `
                     <tr>
-                        <th>File Name</th>
-                        <th>Owner</th>
-                        <th>Size</th>
-                        <th>Last Modified</th>
-                        <th>Access Permissions</th>
+                        <td>${file.name}</td>
+                        <td>${file.owner}</td>
+                        <td>${file.size}</td>
+                        <td>${file.lastModified}</td>
+                        <td>${file.permissions}</td>
                     </tr>
-                    ${data.map(file => `
-                        <tr>
-                            <td>${file.name}</td>
-                            <td>${file.owner}</td>
-                            <td>${file.size}</td>
-                            <td>${file.lastModified}</td>
-                            <td>${file.permissions}</td>
-                        </tr>
-                    `).join('')}
-                </table>
-            `;
+                `).join('')}
+            </table>
+        `;
         document.getElementById('printArea').innerHTML = printContent;
         window.print();
     }
