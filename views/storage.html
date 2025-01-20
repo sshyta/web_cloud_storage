@@ -120,7 +120,9 @@
     async function fetchFiles() {
         try {
             const response = await fetch('/storage/files');
-            if (!response.ok) throw new Error('Ошибка получения списка файлов');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const files = await response.json();
             const fileList = document.getElementById('fileList');
@@ -144,9 +146,9 @@
                 fileList.innerHTML = '<div class="no-files">Файлы не найдены</div>';
             }
         } catch (error) {
-            console.error('Ошибка:', error);
+            console.error('Ошибка при загрузке файлов:', error);
             document.getElementById('fileList').innerHTML =
-                '<div class="error">Ошибка загрузки файлов. Пожалуйста, попробуйте снова.</div>';
+                `<div class="error">Ошибка загрузки файлов: ${error.message}. Пожалуйста, попробуйте снова.</div>`;
         }
     }
 
@@ -204,78 +206,13 @@
 
     async function editFile(fileName) {
         try {
-            const response = await fetch(`/storage/view?file=${encodeURIComponent(fileName)}`);
-            if (!response.ok) {
-                throw new Error('Ошибка получения содержимого файла');
-            }
-            const content = await response.text();
+            const url = `/storage/view?file=${encodeURIComponent(fileName)}`;
 
-            const modal = document.createElement('div');
-            modal.style.position = 'fixed';
-            modal.style.left = '0';
-            modal.style.top = '0';
-            modal.style.width = '100%';
-            modal.style.height = '100%';
-            modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            modal.style.display = 'flex';
-            modal.style.justifyContent = 'center';
-            modal.style.alignItems = 'center';
-
-            const modalContent = document.createElement('div');
-            modalContent.style.backgroundColor = '#333';
-            modalContent.style.padding = '20px';
-            modalContent.style.borderRadius = '5px';
-            modalContent.style.width = '80%';
-            modalContent.style.maxWidth = '600px';
-
-            const textarea = document.createElement('textarea');
-            textarea.value = content;
-            textarea.style.width = '100%';
-            textarea.style.height = '300px';
-            textarea.style.marginBottom = '10px';
-            textarea.style.backgroundColor = '#222';
-            textarea.style.color = '#fff';
-            textarea.style.border = '1px solid #444';
-            textarea.style.padding = '10px';
-
-            const saveButton = document.createElement('button');
-            saveButton.textContent = 'Сохранить';
-            saveButton.style.marginRight = '10px';
-            saveButton.onclick = async () => {
-                try {
-                    const saveResponse = await fetch('/storage/edit', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `file=${encodeURIComponent(fileName)}&content=${encodeURIComponent(textarea.value)}`
-                    });
-
-                    if (!saveResponse.ok) {
-                        throw new Error('Ошибка сохранения файла');
-                    }
-
-                    alert('Файл успешно сохранен');
-                    document.body.removeChild(modal);
-                    await fetchFiles();
-                } catch (error) {
-                    alert('Ошибка при сохранении файла: ' + error.message);
-                }
-            };
-
-            const cancelButton = document.createElement('button');
-            cancelButton.textContent = 'Отмена';
-            cancelButton.onclick = () => {
-                document.body.removeChild(modal);
-            };
-
-            modalContent.appendChild(textarea);
-            modalContent.appendChild(saveButton);
-            modalContent.appendChild(cancelButton);
-            modal.appendChild(modalContent);
-            document.body.appendChild(modal);
+            // Открываем URL в новой вкладке
+            window.open(url, '_blank');
         } catch (error) {
-            alert('Ошибка при редактировании файла: ' + error.message);
+            console.error('Ошибка при открытии файла:', error);
+            alert(`Ошибка при открытии файла: ${error.message}`);
         }
     }
 
@@ -305,7 +242,7 @@
             alert(error.message);
         }
     }
-
+    fetchFiles();
     document.addEventListener('DOMContentLoaded', () => {
         updateStorageInfo();
         fetchFiles();
