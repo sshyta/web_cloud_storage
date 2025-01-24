@@ -53,8 +53,7 @@ func (c *AdminController) GetUserInfo() {
 	// Здесь мы вызываем calculateTotalUsage, передавая путь к папке пользователя
 	storageUsed := calculateTotalUsage(userDir) // Передаем путь, не даты
 
-	// Преобразуем размер в гигабайты
-	storageUsedGB := float64(storageUsed) / (1024 * 1024 * 1024)
+	storageUsedGB := float64(storageUsed) / (1024 * 1024 * 1024) // Размер в гигабайтах
 
 	// Отправка данных в формате JSON
 	c.Data["json"] = map[string]interface{}{
